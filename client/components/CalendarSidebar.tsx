@@ -138,7 +138,7 @@ export default function CalendarSidebar() {
 
       {open && (
         <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur">
-          <div className="mx-auto max-w-6xl h-full p-6">
+          <div className="mx-auto max-w-7xl h-full p-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">
                 Full Calendar - Meal Ideas
@@ -158,8 +158,10 @@ export default function CalendarSidebar() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100%-72px)]">
-              <div className="col-span-1 lg:col-span-1">
+            {/* Stack calendar on top and details underneath for a more spacious layout */}
+            <div className="flex flex-col gap-6 h-[calc(100%-72px)]">
+              {/* calendar: constrain height so details fit on the same page */}
+              <div className="w-full max-h-[55%] overflow-auto">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <button
@@ -214,19 +216,18 @@ export default function CalendarSidebar() {
                         <div
                           key={day.toISOString()}
                           onClick={() => onDateClick(day)}
-                          className={`min-h-[80px] p-2 rounded border ${isSelected ? "ring-2 ring-primary" : ""} ${isToday ? "bg-accent/20" : ""} cursor-pointer`}
+                          className={`min-h-[90px] p-2 rounded border ${isSelected ? "ring-2 ring-primary" : ""} ${isToday ? "bg-accent/20" : ""} cursor-pointer overflow-hidden`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="text-sm font-medium">
                               {day.getDate()}
                             </div>
-                            {meals.length > 0 && (
-                              <Badge variant="outline">{meals.length}</Badge>
-                            )}
                           </div>
                           <div className="mt-2 text-xs text-muted-foreground space-y-1">
                             {meals.slice(0, 2).map((m) => (
-                              <div key={`${m.name}-${m.slot}`}>{m.name}</div>
+                              <div key={`${m.name}-${m.slot}`} className="truncate" title={m.name}>
+                                {m.name}
+                              </div>
                             ))}
                           </div>
                         </div>
@@ -236,7 +237,7 @@ export default function CalendarSidebar() {
                 </div>
               </div>
 
-              <div className="col-span-2 overflow-auto">
+              <div className="w-full overflow-auto flex-1">
                 <h3 className="font-medium mb-3">
                   Details for {selected?.toLocaleDateString()}
                 </h3>
@@ -365,39 +366,7 @@ export default function CalendarSidebar() {
                     </div>
                   )}
 
-                  <div className="mt-6">
-                    <h4 className="font-semibold mb-2">This month's ideas</h4>
-                    <ScrollArea className="h-56 p-2 border rounded">
-                      <div className="grid grid-cols-2 gap-2">
-                        {weeks
-                          .flat()
-                          .slice(0, 35)
-                          .filter(Boolean)
-                          .map((d) => {
-                            const day = d as Date;
-                            const forDay = ideasForDate(day);
-                            return (
-                              <div
-                                key={day.toISOString()}
-                                className="p-3 border rounded"
-                              >
-                                <div className="flex items-center justify-between mb-2">
-                                  <div className="text-sm font-medium">
-                                    {day.toLocaleDateString()}
-                                  </div>
-                                  <Badge variant="outline">
-                                    {forDay.length} ideas
-                                  </Badge>
-                                </div>
-                                <div className="text-sm text-muted-foreground">
-                                  {forDay.join(", ")}
-                                </div>
-                              </div>
-                            );
-                          })}
-                      </div>
-                    </ScrollArea>
-                  </div>
+                  {/* This month's ideas removed per request */}
                 </div>
               </div>
             </div>

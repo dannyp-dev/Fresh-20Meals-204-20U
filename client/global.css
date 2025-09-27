@@ -98,8 +98,10 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    background-image: radial-gradient(40rem 20rem at 120% -10%, hsl(var(--accent)/0.06), transparent),
-      radial-gradient(40rem 20rem at -10% 120%, hsl(var(--primary)/0.06), transparent);
+    background-image:
+      radial-gradient(36rem 18rem at 110% -8%, hsl(var(--accent) / 0.08), transparent),
+      radial-gradient(36rem 18rem at -8% 110%, hsl(var(--primary) / 0.08), transparent),
+      linear-gradient(180deg, rgba(241, 253, 246, 1), rgba(249, 255, 240, 1));
   }
 }
 

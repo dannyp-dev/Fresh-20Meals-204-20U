@@ -72,49 +72,72 @@ export default function RecommendedMeals() {
         </button>
 
         <div className="border rounded-lg p-4 overflow-hidden">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {pageItems.map((s) => (
-              <Card key={s.name} className="p-4 flex flex-col gap-3">
-                <div className="flex items-start justify-between">
-                  <h3 className="font-semibold">{s.name}</h3>
-                  <Badge variant={s.score > 0.5 ? "default" : "secondary"}>
-                    {Math.round(s.score * 100)}%
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Needed: {s.tags.join(", ")}
-                </p>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex gap-2">
-                    <button
-                      className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm"
-                      onClick={() => setModalMeal(s)}
-                    >
-                      View
-                    </button>
-                    <button
-                      className="px-3 py-1 rounded-md border text-sm"
-                      onClick={() =>
-                        window.dispatchEvent(
-                          new CustomEvent("schedule-meal", {
-                            detail: { meal: s.name },
-                          }),
-                        )
-                      }
-                    >
-                      Schedule
-                    </button>
+          {/* carousel viewport */}
+          <div className="relative w-full overflow-hidden">
+            {/* sliding track */}
+            <div
+              className="flex transition-transform duration-300 ease-in-out"
+              style={{ transform: `translateX(-${page * 100}%)` }}
+            >
+              {Array.from({ length: pages }).map((_, pi) => {
+                const items = scored.slice(pi * perPage, pi * perPage + perPage);
+                return (
+                  <div key={pi} className="w-full flex-shrink-0">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                      {items.map((s) => (
+                        <Card
+                          key={s.name}
+                          className="p-4 flex flex-col gap-3 transform transition-all duration-150 ease-out hover:-translate-y-1 hover:shadow-xl"
+                        >
+                          <div className="flex items-start justify-between">
+                            <h3 className="font-semibold">{s.name}</h3>
+                            <Badge variant={s.score > 0.5 ? "default" : "secondary"}>
+                              {Math.round(s.score * 100)}%
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            Needed: {s.tags.join(", ")}
+                          </p>
+                          <div className="flex items-center justify-between mt-2">
+                            <div className="flex gap-2">
+                              <button
+                                className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm"
+                                onClick={() => setModalMeal(s)}
+                              >
+                                View
+                              </button>
+                              <button
+                                className="px-3 py-1 rounded-md border text-sm"
+                                onClick={() =>
+                                  window.dispatchEvent(
+                                    new CustomEvent("schedule-meal", {
+                                      detail: { meal: s.name },
+                                    }),
+                                  )
+                                }
+                              >
+                                Schedule
+                              </button>
+                            </div>
+                            <button
+                              onClick={() => toggleFavorite(s.name)}
+                              className={`p-2 transition-colors duration-300 ease-in-out ${
+                                favorites.includes(s.name) 
+                                  ? "text-yellow-500" 
+                                  : "text-muted-foreground hover:text-yellow-500"
+                              }`}
+                              title="Favorite"
+                            >
+                              <span className="text-lg transition-transform duration-300 ease-in-out inline-block">★</span>
+                            </button>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => toggleFavorite(s.name)}
-                    className={`p-2 rounded-full ${favorites.includes(s.name) ? "bg-yellow-300 text-yellow-800" : "bg-card"}`}
-                    title="Favorite"
-                  >
-                    ★
-                  </button>
-                </div>
-              </Card>
-            ))}
+                );
+              })}
+            </div>
           </div>
         </div>
 

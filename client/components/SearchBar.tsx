@@ -35,6 +35,16 @@ export default function ({ className }: { className?: string }) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setOpen(Boolean(query.trim()))}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            if (suggestions.length > 0) {
+              addToBag(suggestions[0]);
+              setQuery("");
+              setOpen(false);
+            }
+          }
+        }}
       />
 
 

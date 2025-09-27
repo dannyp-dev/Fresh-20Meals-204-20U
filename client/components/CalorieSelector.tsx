@@ -19,16 +19,16 @@ export default function CalorieSelector() {
       {open && (
         <div className="absolute right-0 mt-2 w-56 rounded-md border bg-card p-3 shadow-lg z-50">
           <div className="text-sm mb-2">Per-meal target (kcal)</div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 items-center">
             <input
-              className="flex-1 rounded border px-2 py-1 text-sm"
+              className="flex-1 min-w-0 rounded border px-2 py-1 text-sm"
               value={input}
               onChange={(e) => setInput(e.target.value.replace(/[^0-9]/g, ""))}
               placeholder="e.g. 600"
               inputMode="numeric"
             />
             <button
-              className="px-3 py-1 rounded bg-primary text-primary-foreground"
+              className="px-3 py-1 rounded bg-primary text-primary-foreground shrink-0"
               onClick={() => {
                 const v = input ? parseInt(input, 10) : null;
                 setCalorieTarget(v);
