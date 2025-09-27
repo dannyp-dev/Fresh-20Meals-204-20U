@@ -37,19 +37,6 @@ export default function SearchBar({ className }: { className?: string }) {
         onFocus={() => setOpen(Boolean(query.trim()))}
       />
 
-      {/* Grocery bag quick button inside search */}
-      <div className="ml-3 hidden sm:block">
-        <button
-          title="Open grocery bag"
-          className="rounded-full p-2 border bg-background/60 hover:shadow"
-          onClick={() => {
-            // dispatch custom event to open bag panel
-            window.dispatchEvent(new CustomEvent("open-grocery-bag"));
-          }}
-        >
-          🛍️
-        </button>
-      </div>
 
       {open && suggestions.length > 0 && (
         <div className="absolute left-0 top-full mt-2 w-[28rem] max-h-80 overflow-auto rounded-xl border bg-card p-2 shadow-lg">
