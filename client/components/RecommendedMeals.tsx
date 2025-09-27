@@ -1,38 +1,57 @@
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useSearch } from "@/context/SearchContext";
 import MealModal from "@/components/MealModal";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChefHat, ShoppingBasket } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-const REC = [
+const MIN_INGREDIENTS = 3;
+import type { GenerateMealsResponse } from "@shared/api";
+
+// Fallback recipes in case AI generation fails
+const FALLBACK_RECIPES = [
   { name: "Lemon Garlic Salmon", tags: ["salmon", "lemon", "garlic"] },
   { name: "Pesto Pasta", tags: ["basil", "parmesan", "pasta"] },
   { name: "Chicken Caesar Wrap", tags: ["chicken", "lettuce", "tortilla"] },
   { name: "Veggie Stir Fry", tags: ["broccoli", "carrot", "soy sauce"] },
-  {
-    name: "Chickpea Curry",
-    tags: ["curry powder", "coconut milk", "chickpea"],
-  },
-  { name: "Shrimp Tacos", tags: ["shrimp", "lime", "tortilla"] },
-  { name: "Margherita Pizza", tags: ["tomato", "mozzarella", "basil"] },
-  { name: "Ramen Bowl", tags: ["noodles", "egg", "miso"] },
-  { name: "Beef Stir Fry", tags: ["beef", "soy sauce", "broccoli"] },
-  { name: "Falafel Wrap", tags: ["chickpea", "tahini", "lettuce"] },
-  { name: "Sushi Night", tags: ["rice", "nori", "fish"] },
-  { name: "Mushroom Risotto", tags: ["mushroom", "rice", "parmesan"] },
 ];
 
 export default function RecommendedMeals() {
-  const { bag } = useSearch();
+  const { bag, favorites, toggleFavorite } = useSearch();
   const [modalMeal, setModalMeal] = useState<any | null>(null);
   const [page, setPage] = useState(0);
   const perPage = 8; // 2 rows x 4 cols
+  const [recipes, setRecipes] = useState<typeof FALLBACK_RECIPES>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const { favorites, toggleFavorite } = useSearch();
+  // ...existing code...
+
+  // Function to generate meals on demand
+  const generateMeals = async () => {
+    setIsLoading(true);
+    try {
+      const response = await fetch('/api/meals/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients: bag })
+      });
+
+      if (!response.ok) throw new Error('Failed to generate meals');
+      
+      const data: GenerateMealsResponse = await response.json();
+      setRecipes(data.meals);
+      setPage(0); // Reset to first page after generating new meals
+    } catch (error) {
+      console.error('Error generating meals:', error);
+      setRecipes(FALLBACK_RECIPES);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const scored = useMemo(() => {
-    return REC.map((r) => {
+    return recipes.map((r) => {
       const have = r.tags.filter((t) =>
         bag.some((b) => b.toLowerCase().includes(t)),
       ).length;
@@ -44,7 +63,7 @@ export default function RecommendedMeals() {
       if (aFav !== bFav) return bFav - aFav;
       return b.score - a.score;
     });
-  }, [bag, favorites]);
+  }, [bag, favorites, recipes]);
 
   const pages = Math.max(1, Math.ceil(scored.length / perPage));
 
@@ -59,8 +78,48 @@ export default function RecommendedMeals() {
     <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 relative">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Recommended Meals</h2>
+        <div className="flex items-center gap-4">
+          {isLoading && <span className="text-sm text-muted-foreground">Generating meal ideas...</span>}
+          {bag.length >= MIN_INGREDIENTS && (
+            <Button 
+              onClick={generateMeals} 
+              disabled={isLoading}
+              className="gap-2"
+            >
+              <ChefHat className="h-4 w-4" />
+              Generate Meals
+            </Button>
+          )}
+        </div>
       </div>
 
+      {bag.length === 0 ? (
+        <Card className="p-8 text-center">
+          <ShoppingBasket className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Your grocery bag is empty</h3>
+          <p className="text-muted-foreground mb-4">
+            Start by adding some ingredients to your grocery bag to get meal recommendations
+          </p>
+        </Card>
+      ) : bag.length < MIN_INGREDIENTS ? (
+        <Card className="p-8 text-center">
+          <ChefHat className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Add more ingredients</h3>
+          <p className="text-muted-foreground mb-4">
+            Add at least {MIN_INGREDIENTS} ingredients to start getting meal recommendations.
+            Currently have: {bag.length} ingredient{bag.length === 1 ? '' : 's'}
+          </p>
+        </Card>
+      ) : recipes.length === 0 ? (
+        <Card className="p-8 text-center">
+          <ChefHat className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Ready to generate meals</h3>
+          <p className="text-muted-foreground mb-4">
+            You have enough ingredients! Click the "Generate Meals" button to see what you can cook.
+          </p>
+        </Card>
+      ) : (
+        <>
       <div className="relative">
         <button
           aria-label="prev"
@@ -150,12 +209,14 @@ export default function RecommendedMeals() {
           <ChevronRight className="h-6 w-6" />
         </button>
       </div>
-
-      <MealModal
-        open={!!modalMeal}
-        onClose={() => setModalMeal(null)}
-        meal={modalMeal}
-      />
+      
+          <MealModal
+            open={!!modalMeal}
+            onClose={() => setModalMeal(null)}
+            meal={modalMeal}
+          />
+        </>
+      )}
     </section>
   );
 }
