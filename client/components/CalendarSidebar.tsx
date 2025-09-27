@@ -1,9 +1,9 @@
 import { useMemo, useState, useEffect } from "react";
-import { Calendar as CalendarIcon, X } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
+import { Calendar as CalendarIcon, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { useSchedule } from "@/context/ScheduleContext";
 
 const IDEAS = [
   "Grilled Chicken Salad",
@@ -35,18 +35,77 @@ function ideasForDate(d: Date) {
   return [a, b];
 }
 
+function startOfMonth(d: Date) {
+  const t = new Date(d.getFullYear(), d.getMonth(), 1);
+  return t;
+}
+function endOfMonth(d: Date) {
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0);
+}
+
+function startOfWeek(d: Date) {
+  const day = d.getDay();
+  const diff = d.getDate() - day;
+  return new Date(d.getFullYear(), d.getMonth(), diff);
+}
+
 export default function CalendarSidebar() {
   const [open, setOpen] = useState(false);
+  const [viewDate, setViewDate] = useState(new Date()); // month view
   const [selected, setSelected] = useState<Date | undefined>(new Date());
-  const ideas = useMemo(() => (selected ? ideasForDate(selected) : []), [selected]);
+  const [pendingMeal, setPendingMeal] = useState<string | null>(null);
+
+  const { getMealsForDate, addScheduledMeal, scheduled } = useSchedule();
 
   useEffect(() => {
     function handler() {
       setOpen(true);
     }
+    function scheduleHandler(e: Event) {
+      const detail = (e as CustomEvent).detail as { meal: string } | undefined;
+      if (detail?.meal) {
+        setPendingMeal(detail.meal);
+        setOpen(true);
+      }
+    }
     window.addEventListener("open-full-calendar", handler);
-    return () => window.removeEventListener("open-full-calendar", handler);
+    window.addEventListener("schedule-meal", scheduleHandler as EventListener);
+    return () => {
+      window.removeEventListener("open-full-calendar", handler);
+      window.removeEventListener("schedule-meal", scheduleHandler as EventListener);
+    };
   }, []);
+
+  const today = new Date();
+
+  const monthStart = startOfMonth(viewDate);
+  const monthEnd = endOfMonth(viewDate);
+  const calendarStart = startOfWeek(monthStart);
+
+  const weeks: Date[][] = [];
+  let cur = new Date(calendarStart);
+  while (cur <= monthEnd || weeks.length < 6) {
+    const week: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      week.push(new Date(cur));
+      cur.setDate(cur.getDate() + 1);
+    }
+    weeks.push(week);
+    if (weeks.length > 6) break;
+  }
+
+  const prevMonth = () => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
+  const nextMonth = () => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
+
+  function onDateClick(d: Date) {
+    if (pendingMeal) {
+      addScheduledMeal(d, pendingMeal);
+      setPendingMeal(null);
+      // keep open to allow more scheduling or close
+      return;
+    }
+    setSelected(new Date(d));
+  }
 
   return (
     <div id="planner">
@@ -64,57 +123,85 @@ export default function CalendarSidebar() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">Full Calendar - Meal Ideas</h2>
               <div className="flex items-center gap-2">
+                {pendingMeal && <div className="text-sm text-muted-foreground">Scheduling: {pendingMeal}</div>}
                 <button className="px-3 py-1 rounded border" onClick={() => setOpen(false)}>
                   <X />
                 </button>
               </div>
             </div>
+
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100%-72px)]">
               <div className="col-span-1 lg:col-span-1">
-                <Calendar
-                  mode="single"
-                  selected={selected}
-                  onSelect={setSelected}
-                  className="rounded-md border"
-                />
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <button onClick={prevMonth} className="px-2 py-1 rounded border"><ChevronLeft /></button>
+                    <div className="font-medium">{viewDate.toLocaleString(undefined, { month: "long", year: "numeric" })}</div>
+                    <button onClick={nextMonth} className="px-2 py-1 rounded border"><ChevronRight /></button>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-7 gap-1 text-sm">
+                  {['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((d) => (
+                    <div key={d} className="text-center text-xs text-muted-foreground py-1">{d}</div>
+                  ))}
+
+                  {weeks.map((week, wi) => (
+                    week.map((day) => {
+                      const isCurrentMonth = day.getMonth() === viewDate.getMonth();
+                      const isToday = day.toDateString() === new Date().toDateString();
+                      const isSelected = selected && day.toDateString() === selected.toDateString();
+                      const meals = getMealsForDate(day);
+                      return (
+                        <div key={day.toISOString()} onClick={() => onDateClick(day)} className={`min-h-[80px] p-2 rounded border ${isCurrentMonth ? '' : 'opacity-40'} ${isSelected ? 'ring-2 ring-primary' : ''} ${isToday ? 'bg-accent/20' : ''} cursor-pointer`}>
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium">{day.getDate()}</div>
+                            {meals.length > 0 && <Badge variant="outline">{meals.length}</Badge>}
+                          </div>
+                          <div className="mt-2 text-xs text-muted-foreground space-y-1">
+                            {meals.slice(0,2).map((m) => <div key={m}>{m}</div>)}
+                          </div>
+                        </div>
+                      );
+                    })
+                  ))}
+                </div>
               </div>
+
               <div className="col-span-2 overflow-auto">
-                <h3 className="font-medium mb-3">Ideas for {selected?.toLocaleDateString()}</h3>
+                <h3 className="font-medium mb-3">Details for {selected?.toLocaleDateString()}</h3>
                 <Separator />
                 <div className="mt-4 grid gap-3">
-                  {ideas.map((name) => (
+                  {(selected ? getMealsForDate(selected) : []).map((name) => (
                     <div key={name} className="flex items-center justify-between rounded-md border p-3">
                       <div>
                         <h4 className="font-semibold">{name}</h4>
-                        <p className="text-sm text-muted-foreground">A tasty recipe idea for the day.</p>
+                        <p className="text-sm text-muted-foreground">Scheduled meal</p>
                       </div>
-                      <Badge variant="secondary">Idea</Badge>
+                      <Badge variant="secondary">Planned</Badge>
                     </div>
                   ))}
-                </div>
 
-                <div className="mt-8">
-                  <h4 className="font-semibold mb-2">All days this month</h4>
-                  <ScrollArea className="h-56 p-2 border rounded">
-                    <div className="grid grid-cols-2 gap-2">
-                      {Array.from({ length: 28 }).map((_, i) => {
-                        const d = new Date();
-                        d.setDate(i + 1);
-                        const forDay = ideasForDate(d);
-                        return (
-                          <div key={i} className="p-3 border rounded">
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="text-sm font-medium">{d.toLocaleDateString()}</div>
-                              <Badge variant="outline">{forDay.length} ideas</Badge>
+                  <div className="mt-6">
+                    <h4 className="font-semibold mb-2">This month's ideas</h4>
+                    <ScrollArea className="h-56 p-2 border rounded">
+                      <div className="grid grid-cols-2 gap-2">
+                        {weeks.flat().slice(0, 35).map((d) => {
+                          const forDay = ideasForDate(d);
+                          return (
+                            <div key={d.toISOString()} className="p-3 border rounded">
+                              <div className="flex items-center justify-between mb-2">
+                                <div className="text-sm font-medium">{d.toLocaleDateString()}</div>
+                                <Badge variant="outline">{forDay.length} ideas</Badge>
+                              </div>
+                              <div className="text-sm text-muted-foreground">
+                                {forDay.join(", ")}
+                              </div>
                             </div>
-                            <div className="text-sm text-muted-foreground">
-                              {forDay.join(", ")}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </ScrollArea>
+                          );
+                        })}
+                      </div>
+                    </ScrollArea>
+                  </div>
                 </div>
               </div>
             </div>
