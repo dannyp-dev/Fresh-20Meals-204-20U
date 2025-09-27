@@ -80,19 +80,18 @@ export default function CalendarSidebar() {
 
   const monthStart = startOfMonth(viewDate);
   const monthEnd = endOfMonth(viewDate);
-  const calendarStart = startOfWeek(monthStart);
+  const daysInMonth = monthEnd.getDate();
+  const leadingEmpty = monthStart.getDay();
 
-  const weeks: Date[][] = [];
-  let cur = new Date(calendarStart);
-  while (cur <= monthEnd || weeks.length < 6) {
-    const week: Date[] = [];
-    for (let i = 0; i < 7; i++) {
-      week.push(new Date(cur));
-      cur.setDate(cur.getDate() + 1);
-    }
-    weeks.push(week);
-    if (weeks.length > 6) break;
-  }
+  // build grid rows - each row is 7 cells
+  const cells: (Date | null)[] = [];
+  for (let i = 0; i < leadingEmpty; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(new Date(viewDate.getFullYear(), viewDate.getMonth(), d));
+  // pad trailing
+  while (cells.length % 7 !== 0) cells.push(null);
+
+  const weeks: (Date | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
 
   const prevMonth = () => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() - 1, 1));
   const nextMonth = () => setViewDate((d) => new Date(d.getFullYear(), d.getMonth() + 1, 1));
