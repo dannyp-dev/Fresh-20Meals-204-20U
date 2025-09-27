@@ -163,13 +163,37 @@ const data: MyRouteResponse = await response.json();
 - Comprehensive UI component library included
 - Type-safe API communication via shared interfaces
 
-## Meals Feature (Fallback-Only Mode)
+## Meals Feature (Gemini Integration)
 
-The previous AI-powered meal generation endpoint (`POST /api/meals/generate`) and all OpenAI dependencies have been removed. The `RecommendedMeals` component now always displays a static set of fallback recipes.
+Meal generation now uses Google Gemini via the server endpoint:
+- `POST /api/meals/generate` with body: `{ ingredients: string[], maxMeals?: number }`
 
-If you later want to restore AI generation:
-1. Reintroduce a meals route under `server/routes/` that returns `{ meals: [...] }`.
-2. Add the fetch logic & button back into `client/components/RecommendedMeals.tsx`.
-3. Re-install the OpenAI dependency and set an `OPENAI_API_KEY` environment variable.
+Environment variable required:
+```
+GEMINI_API_KEY=your_key_here
+```
 
-Until then the UI will not make any network requests for meal generation.
+If the key is missing, or Gemini output can't be parsed, the system gracefully falls back to a static recipe set (tagged with `source: "fallback"`).
+
+Response shape:
+```json
+{
+  "model": "gemini-2.0-flash",
+  "meals": [
+    { "name": "...", "description": "...", "tags": ["ingredient", "..."], "source": "gemini" }
+  ],
+  "rawText": "<optional raw model text for debugging>"
+}
+```
+
+Client component `RecommendedMeals.tsx`:
+- Shows a Generate button when minimum ingredients reached.
+- Displays model identifier and error messages inline.
+- Falls back automatically if generation fails.
+
+To adjust behavior:
+1. Change model name in `server/routes/meals.ts` (MODEL_NAME constant).
+2. Tweak prompt instructions for different style/length.
+3. Increase `maxMeals` value from client call.
+
+Security note: All AI calls occur on the server; the API key never ships to the browser.

@@ -1,3 +1,3 @@
 export const config = {
-  // Placeholder for future server configuration. AI meal generation removed.
+  geminiApiKey: process.env.GEMINI_API_KEY || "",
 };

@@ -8,12 +8,12 @@ import { Button } from "@/components/ui/button";
 
 const MIN_INGREDIENTS = 3;
 
-// Fallback recipes in case AI generation fails
+// Fallback recipes in case Gemini generation fails
 const FALLBACK_RECIPES = [
-  { name: "Lemon Garlic Salmon", tags: ["salmon", "lemon", "garlic"] },
-  { name: "Pesto Pasta", tags: ["basil", "parmesan", "pasta"] },
-  { name: "Chicken Caesar Wrap", tags: ["chicken", "lettuce", "tortilla"] },
-  { name: "Veggie Stir Fry", tags: ["broccoli", "carrot", "soy sauce"] },
+  { name: "Lemon Garlic Salmon", description: "Roasted salmon with bright lemon and savory garlic.", tags: ["salmon", "lemon", "garlic"], source: 'fallback' },
+  { name: "Pesto Pasta", description: "Al dente pasta tossed in fresh basil pesto.", tags: ["basil", "parmesan", "pasta"], source: 'fallback' },
+  { name: "Chicken Caesar Wrap", description: "Grilled chicken, crisp lettuce and dressing wrapped.", tags: ["chicken", "lettuce", "tortilla"], source: 'fallback' },
+  { name: "Veggie Stir Fry", description: "Quick stir-fried mixed veggies in a light sauce.", tags: ["broccoli", "carrot", "soy sauce"], source: 'fallback' },
 ];
 
 export default function RecommendedMeals() {
@@ -21,12 +21,41 @@ export default function RecommendedMeals() {
   const [modalMeal, setModalMeal] = useState<any | null>(null);
   const [page, setPage] = useState(0);
   const perPage = 8; // 2 rows x 4 cols
-  const [recipes] = useState<typeof FALLBACK_RECIPES>(FALLBACK_RECIPES);
-  const [isLoading] = useState(false);
+  const [recipes, setRecipes] = useState<typeof FALLBACK_RECIPES>(FALLBACK_RECIPES);
+  const [isLoading, setIsLoading] = useState(false);
+  const [lastModel, setLastModel] = useState<string | undefined>(undefined);
+  const [error, setError] = useState<string | null>(null);
 
   // ...existing code...
 
-  // AI generation removed; static fallback recipes always used.
+  async function generateMeals() {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const resp = await fetch('/api/meals/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredients: bag, maxMeals: 8 })
+      });
+      if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
+      const data = await resp.json();
+      if (!data.meals || !Array.isArray(data.meals) || data.meals.length === 0) {
+        setRecipes(FALLBACK_RECIPES);
+        setLastModel(data.model || 'fallback');
+        return;
+      }
+      setRecipes(data.meals);
+      setLastModel(data.model);
+      setPage(0);
+    } catch (e:any) {
+      console.error('[generateMeals] error', e);
+      setError(e.message || 'Failed to generate meals');
+      setRecipes(FALLBACK_RECIPES);
+      setLastModel('fallback:error');
+    } finally {
+      setIsLoading(false);
+    }
+  }
 
   const scored = useMemo(() => {
     return recipes.map((r) => {
@@ -57,7 +86,18 @@ export default function RecommendedMeals() {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Recommended Meals</h2>
         <div className="flex items-center gap-4">
-          {/* Generation button removed: fallback-only mode */}
+          {lastModel && (
+            <span className="text-xs text-muted-foreground">Model: {lastModel}</span>
+          )}
+          {error && (
+            <span className="text-xs text-destructive">{error}</span>
+          )}
+          {bag.length >= MIN_INGREDIENTS && (
+            <Button onClick={generateMeals} disabled={isLoading} className="gap-2">
+              <ChefHat className="h-4 w-4" />
+              {isLoading ? 'Generating...' : 'Generate Meals'}
+            </Button>
+          )}
         </div>
       </div>
 
