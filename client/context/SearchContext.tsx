@@ -12,6 +12,10 @@ interface SearchCtx {
   addToBag: (item: string) => void;
   removeFromBag: (item: string) => void;
   toggleBag: (item: string) => void;
+  favorites: string[];
+  toggleFavorite: (item: string) => void;
+  calorieTarget: number | null;
+  setCalorieTarget: (v: number | null) => void;
 }
 
 const Ctx = createContext<SearchCtx | null>(null);
@@ -19,24 +23,32 @@ const Ctx = createContext<SearchCtx | null>(null);
 export function SearchProvider({ children }: { children: ReactNode }) {
   const [query, setQuery] = useState("");
   const [bag, setBag] = useState<string[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   useEffect(() => {
     const stored = localStorage.getItem("grocery_bag");
     if (stored) setBag(JSON.parse(stored));
+    const fav = localStorage.getItem("favorites");
+    if (fav) setFavorites(JSON.parse(fav));
   }, []);
   useEffect(() => {
     localStorage.setItem("grocery_bag", JSON.stringify(bag));
   }, [bag]);
+  useEffect(() => {
+    localStorage.setItem("favorites", JSON.stringify(favorites));
+  }, [favorites]);
 
   const addToBag = (item: string) => setBag((s) => (s.includes(item) ? s : [...s, item]));
   const removeFromBag = (item: string) => setBag((s) => s.filter((x) => x !== item));
   const toggleBag = (item: string) => setBag((s) => (s.includes(item) ? s.filter((x) => x !== item) : [...s, item]));
 
+  const toggleFavorite = (item: string) => setFavorites((s) => (s.includes(item) ? s.filter((x) => x !== item) : [item, ...s]));
+
   const suggestions = BASE_INGREDIENTS.filter((i) => i.toLowerCase().includes(query.trim().toLowerCase()));
 
   const [calorieTarget, setCalorieTarget] = useState<number | null>(null);
 
-  const value = useMemo(() => ({ query, setQuery, suggestions, bag, addToBag, removeFromBag, toggleBag, calorieTarget, setCalorieTarget }), [query, bag, calorieTarget]);
+  const value = useMemo(() => ({ query, setQuery, suggestions, bag, addToBag, removeFromBag, toggleBag, favorites, toggleFavorite, calorieTarget, setCalorieTarget }), [query, bag, calorieTarget, favorites]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
