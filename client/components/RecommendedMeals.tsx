@@ -70,9 +70,14 @@ export default function RecommendedMeals() {
                   <Badge variant={s.score > 0.5 ? "default" : "secondary"}>{Math.round(s.score * 100)}%</Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">Needed: {s.tags.join(", ")}</p>
-                <div className="flex gap-2 mt-2">
-                  <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm" onClick={() => setModalMeal(s)}>View</button>
-                  <button className="px-3 py-1 rounded-md border text-sm" onClick={() => window.dispatchEvent(new CustomEvent('schedule-meal', { detail: { meal: s.name } }))}>Schedule</button>
+                <div className="flex items-center justify-between mt-2">
+                  <div className="flex gap-2">
+                    <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm" onClick={() => setModalMeal(s)}>View</button>
+                    <button className="px-3 py-1 rounded-md border text-sm" onClick={() => window.dispatchEvent(new CustomEvent('schedule-meal', { detail: { meal: s.name } }))}>Schedule</button>
+                  </div>
+                  <button onClick={() => toggleFavorite(s.name)} className={`p-2 rounded-full ${favorites.includes(s.name)? 'bg-yellow-300 text-yellow-800':'bg-card'}`} title="Favorite">
+                    ★
+                  </button>
                 </div>
               </Card>
             ))}
