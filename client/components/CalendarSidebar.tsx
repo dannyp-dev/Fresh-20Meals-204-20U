@@ -28,7 +28,8 @@ const IDEAS = [
   "Fish and Chips",
 ];
 
-function ideasForDate(d: Date) {
+function ideasForDate(d?: Date | null) {
+  if (!d) return [];
   const day = d.getDate();
   const a = IDEAS[(day * 3) % IDEAS.length];
   const b = IDEAS[(day * 5 + 1) % IDEAS.length];
