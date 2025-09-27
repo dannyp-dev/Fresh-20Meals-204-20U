@@ -145,13 +145,13 @@ export default function CalendarSidebar() {
                   ))}
 
                   {weeks.map((week, wi) => (
-                    week.map((day) => {
-                      const isCurrentMonth = day.getMonth() === viewDate.getMonth();
+                    week.map((day, di) => {
+                      if (!day) return <div key={`empty-${wi}-${di}`} className="min-h-[80px] p-2 rounded border bg-transparent" />;
                       const isToday = day.toDateString() === new Date().toDateString();
                       const isSelected = selected && day.toDateString() === selected.toDateString();
                       const meals = getMealsForDate(day);
                       return (
-                        <div key={day.toISOString()} onClick={() => onDateClick(day)} className={`min-h-[80px] p-2 rounded border ${isCurrentMonth ? '' : 'opacity-40'} ${isSelected ? 'ring-2 ring-primary' : ''} ${isToday ? 'bg-accent/20' : ''} cursor-pointer`}>
+                        <div key={day.toISOString()} onClick={() => onDateClick(day)} className={`min-h-[80px] p-2 rounded border ${isSelected ? 'ring-2 ring-primary' : ''} ${isToday ? 'bg-accent/20' : ''} cursor-pointer`}>
                           <div className="flex items-center justify-between">
                             <div className="text-sm font-medium">{day.getDate()}</div>
                             {meals.length > 0 && <Badge variant="outline">{meals.length}</Badge>}
