@@ -6,17 +6,24 @@ function toKey(d: Date) {
   return d.toISOString().slice(0, 10);
 }
 
+type MealSlot = "breakfast" | "lunch" | "dinner";
+
+interface ScheduledItem {
+  name: string;
+  slot: MealSlot;
+}
+
 interface ScheduleCtx {
-  scheduled: Record<DateKey, string[]>;
-  addScheduledMeal: (date: Date, meal: string) => void;
-  removeScheduledMeal: (date: Date, meal: string) => void;
-  getMealsForDate: (date: Date) => string[];
+  scheduled: Record<DateKey, ScheduledItem[]>;
+  addScheduledMeal: (date: Date, meal: string, slot: MealSlot) => void;
+  removeScheduledMeal: (date: Date, meal: string, slot?: MealSlot) => void;
+  getMealsForDate: (date: Date) => ScheduledItem[];
 }
 
 const Ctx = createContext<ScheduleCtx | null>(null);
 
 export function ScheduleProvider({ children }: { children: ReactNode }) {
-  const [scheduled, setScheduled] = useState<Record<DateKey, string[]>>({});
+  const [scheduled, setScheduled] = useState<Record<DateKey, ScheduledItem[]>>({});
 
   useEffect(() => {
     const raw = localStorage.getItem("scheduled_meals");
@@ -27,14 +34,20 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("scheduled_meals", JSON.stringify(scheduled));
   }, [scheduled]);
 
-  const addScheduledMeal = (date: Date, meal: string) => {
+  const addScheduledMeal = (date: Date, meal: string, slot: MealSlot) => {
     const key = toKey(date);
-    setScheduled((s) => ({ ...s, [key]: Array.from(new Set([...(s[key] || []), meal])) }));
+    setScheduled((s) => ({
+      ...s,
+      [key]: Array.from(new Set([...(s[key] || []), { name: meal, slot }].map((i) => JSON.stringify(i)))).map((j) => JSON.parse(j) as ScheduledItem),
+    }));
   };
 
-  const removeScheduledMeal = (date: Date, meal: string) => {
+  const removeScheduledMeal = (date: Date, meal: string, slot?: MealSlot) => {
     const key = toKey(date);
-    setScheduled((s) => ({ ...s, [key]: (s[key] || []).filter((m) => m !== meal) }));
+    setScheduled((s) => ({
+      ...s,
+      [key]: (s[key] || []).filter((m) => !(m.name === meal && (slot ? m.slot === slot : true))),
+    }));
   };
 
   const getMealsForDate = (date: Date) => scheduled[toKey(date)] || [];
