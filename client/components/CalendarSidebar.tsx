@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import {
   Calendar as CalendarIcon,
   X,
@@ -45,6 +45,7 @@ function startOfMonth(d: Date) {
   const t = new Date(d.getFullYear(), d.getMonth(), 1);
   return t;
 }
+
 function endOfMonth(d: Date) {
   return new Date(d.getFullYear(), d.getMonth() + 1, 0);
 }
@@ -95,6 +96,9 @@ export default function CalendarSidebar() {
 
   const today = new Date();
 
+  // ref to the calendar grid (used to scroll to today's cell)
+  const gridRef = useRef<HTMLDivElement | null>(null);
+
   const monthStart = startOfMonth(viewDate);
   const monthEnd = endOfMonth(viewDate);
   const daysInMonth = monthEnd.getDate();
@@ -126,6 +130,42 @@ export default function CalendarSidebar() {
     setSelected(new Date(d));
   }
 
+  // When the calendar opens, snap the view to the current month and
+  // scroll the today's cell (or selected cell) into center view.
+  useEffect(() => {
+    if (!open) return;
+
+    // Ensure the month shown contains today (so today's cell is present)
+    setViewDate(new Date());
+
+    // Wait a tick for layout to settle, then scroll the element into view
+    const t = setTimeout(() => {
+      const root = gridRef.current;
+      if (!root) return;
+      // Prefer today's cell, fallback to selected cell
+      const el =
+        (root.querySelector('[data-today="true"]') as HTMLElement) ||
+        (root.querySelector('[data-selected="true"]') as HTMLElement);
+      if (el && typeof el.scrollIntoView === "function") {
+        el.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+      }
+    }, 80);
+
+    return () => clearTimeout(t);
+  }, [open]);
+
+  // Prevent the page behind the modal from scrolling while open
+  useEffect(() => {
+    if (open) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => {
+        document.body.style.overflow = prev || "";
+      };
+    }
+    return;
+  }, [open]);
+
   return (
     <div id="planner">
       <button
@@ -137,7 +177,7 @@ export default function CalendarSidebar() {
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur">
+        <div className="fixed inset-0 z-50 bg-background/100">
           <div className="mx-auto max-w-7xl h-full p-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-2xl font-semibold">
@@ -158,10 +198,10 @@ export default function CalendarSidebar() {
               </div>
             </div>
 
-            {/* Stack calendar on top and details underneath for a more spacious layout */}
-            <div className="flex flex-col gap-6 h-[calc(100%-72px)]">
-              {/* calendar: constrain height so details fit on the same page */}
-              <div className="w-full max-h-[55%] overflow-auto">
+            {/* On large screens show calendar left and details right */}
+            <div className="flex flex-col lg:flex-row gap-6 h-[calc(100%-72px)]">
+              {/* calendar column (left) */}
+              <div className="lg:w-3/4 w-full overflow-visible">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <button
@@ -185,25 +225,30 @@ export default function CalendarSidebar() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-7 gap-1 text-sm">
+
+                {/* weekday labels (separate row so they don't inherit the large auto-rows) */}
+                <div className="grid grid-cols-7 gap-x-1 gap-y-0 text-sm">
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(
                     (d) => (
                       <div
                         key={d}
-                        className="text-center text-xs text-muted-foreground py-1"
+                        className="text-center text-xs text-muted-foreground py-0"
                       >
                         {d}
                       </div>
                     ),
                   )}
+                </div>
 
+                {/* day cells (use auto-rows for equal-height cells) */}
+                <div ref={gridRef} className="grid grid-cols-7 gap-x-1 gap-y-1 text-sm auto-rows-[6.5rem]">
                   {weeks.map((week, wi) =>
                     week.map((day, di) => {
                       if (!day)
                         return (
                           <div
                             key={`empty-${wi}-${di}`}
-                            className="min-h-[80px] p-2 rounded border bg-transparent"
+                            className="min-h-[48px] p-2 rounded border bg-transparent"
                           />
                         );
                       const isToday =
@@ -216,7 +261,9 @@ export default function CalendarSidebar() {
                         <div
                           key={day.toISOString()}
                           onClick={() => onDateClick(day)}
-                          className={`min-h-[90px] p-2 rounded border ${isSelected ? "ring-2 ring-primary" : ""} ${isToday ? "bg-accent/20" : ""} cursor-pointer overflow-hidden`}
+                          data-today={isToday}
+                          data-selected={isSelected}
+                          className={`p-1 rounded border ${isSelected ? "ring-2 ring-primary" : ""} ${isToday ? "bg-accent/20" : ""} cursor-pointer overflow-hidden h-full flex flex-col justify-between`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="text-sm font-medium">

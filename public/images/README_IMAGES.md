@@ -1,10 +1,10 @@
 Place four images you want to display in the hero grid here.
 
 Filenames expected by the app (replace with your files):
-- photo1.jpg
-- photo2.jpg
-- photo3.jpg
-- photo4.jpg
+- ![alt text](1.jpeg)
+- ![alt text](2.jpeg)
+- ![alt text](3.jpeg)
+- ![alt text](4.jpeg) 
 
 Supported formats: .jpg, .png, .webp
 
