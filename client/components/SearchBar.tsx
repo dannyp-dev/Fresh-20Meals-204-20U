@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { useSearch } from "@/context/SearchContext";
 import { useState, useRef, useEffect } from "react";
 
-export default function SearchBar({ className }: { className?: string }) {
+export default function ({ className }: { className?: string }) {
   const { query, setQuery, suggestions, addToBag } = useSearch();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
