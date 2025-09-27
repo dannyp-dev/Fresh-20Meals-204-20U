@@ -10,10 +10,10 @@ const MIN_INGREDIENTS = 3;
 
 // Fallback recipes in case Gemini generation fails
 const FALLBACK_RECIPES = [
-  { name: "Lemon Garlic Salmon", description: "Roasted salmon with bright lemon and savory garlic.", tags: ["salmon", "lemon", "garlic"], source: 'fallback' },
-  { name: "Pesto Pasta", description: "Al dente pasta tossed in fresh basil pesto.", tags: ["basil", "parmesan", "pasta"], source: 'fallback' },
-  { name: "Chicken Caesar Wrap", description: "Grilled chicken, crisp lettuce and dressing wrapped.", tags: ["chicken", "lettuce", "tortilla"], source: 'fallback' },
-  { name: "Veggie Stir Fry", description: "Quick stir-fried mixed veggies in a light sauce.", tags: ["broccoli", "carrot", "soy sauce"], source: 'fallback' },
+  { name: "Lemon Garlic Salmon", description: "Roasted salmon with bright lemon and savory garlic.", tags: ["salmon", "lemon", "garlic"], calories: 620, timeMinutes: 28, servings: 2, source: 'fallback' },
+  { name: "Pesto Pasta", description: "Al dente pasta tossed in fresh basil pesto.", tags: ["basil", "parmesan", "pasta"], calories: 740, timeMinutes: 25, servings: 3, source: 'fallback' },
+  { name: "Chicken Caesar Wrap", description: "Grilled chicken, crisp lettuce and dressing wrapped.", tags: ["chicken", "lettuce", "tortilla"], calories: 540, timeMinutes: 18, servings: 2, source: 'fallback' },
+  { name: "Veggie Stir Fry", description: "Quick stir-fried mixed veggies in a light sauce.", tags: ["broccoli", "carrot", "soy sauce"], calories: 410, timeMinutes: 20, servings: 2, source: 'fallback' },
 ];
 
 export default function RecommendedMeals() {

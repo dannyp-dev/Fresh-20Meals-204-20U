@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-export default function MealModal({ open, onClose, meal }: { open: boolean; onClose: () => void; meal?: { name: string; description?: string; tags?: string[]; calories?: number } }) {
+export default function MealModal({ open, onClose, meal }: { open: boolean; onClose: () => void; meal?: { name: string; description?: string; tags?: string[]; calories?: number; timeMinutes?: number; servings?: number } }) {
   const [imgState, setImgState] = useState<{ url?: string; loading: boolean; error?: string; debug?: any; cached?: boolean }>({ loading: false });
   const [showDebug, setShowDebug] = useState(false);
 
@@ -98,22 +98,22 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
           </div>
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-3">
-              <div className="text-sm text-muted-foreground">Estimated calories</div>
-              <div className="font-semibold">{meal.calories ?? Math.floor(400 + Math.random() * 400)} kcal</div>
+              <div className="text-sm text-muted-foreground">Calories (total)</div>
+              <div className="font-semibold">{meal.calories ? `${meal.calories} kcal` : '—'}</div>
             </div>
             <p className="text-sm text-muted-foreground mb-4">This recipe uses: {(meal.tags || []).join(", ")}</p>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <div className="text-sm">Time</div>
-                <div className="text-sm text-muted-foreground">~30 mins</div>
+            <div className="grid grid-cols-3 gap-4 text-sm mb-4">
+              <div>
+                <div className="text-muted-foreground">Time</div>
+                <div className="font-medium">{meal.timeMinutes ? `${meal.timeMinutes} min` : '—'}</div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="text-sm">Difficulty</div>
-                <div className="text-sm text-muted-foreground">Easy</div>
+              <div>
+                <div className="text-muted-foreground">Servings</div>
+                <div className="font-medium">{meal.servings ?? '—'}</div>
               </div>
-              <div className="flex items-center justify-between">
-                <div className="text-sm">Servings</div>
-                <div className="text-sm text-muted-foreground">2</div>
+              <div>
+                <div className="text-muted-foreground">Per Serving</div>
+                <div className="font-medium">{(meal.calories && meal.servings) ? `${Math.round(meal.calories / meal.servings)} kcal` : '—'}</div>
               </div>
             </div>
             <div className="mt-4">

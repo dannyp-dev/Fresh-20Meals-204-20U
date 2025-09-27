@@ -13,6 +13,9 @@ export interface GenerateMealsResponse {
     name: string;
     description: string;
     tags: string[];
+    calories?: number; // estimated total calories for prepared recipe (2 servings if unspecified in prompt)
+    timeMinutes?: number; // estimated active or total time to prepare
+    servings?: number; // number of servings recipe yields
     source?: 'gemini' | 'fallback';
   }>;
   model?: string;
