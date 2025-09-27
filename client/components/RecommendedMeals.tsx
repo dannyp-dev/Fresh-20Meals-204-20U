@@ -26,13 +26,20 @@ export default function RecommendedMeals() {
   const [page, setPage] = useState(0);
   const perPage = 8; // 2 rows x 4 cols
 
+  const { favorites, toggleFavorite } = useSearch();
+
   const scored = useMemo(() => {
     return REC.map((r) => {
       const have = r.tags.filter((t) => bag.some((b) => b.toLowerCase().includes(t)) ).length;
       const score = have / r.tags.length;
       return { ...r, have, score };
-    }).sort((a,b) => b.score - a.score);
-  }, [bag]);
+    }).sort((a,b) => {
+      const aFav = favorites.includes(a.name) ? 1 : 0;
+      const bFav = favorites.includes(b.name) ? 1 : 0;
+      if (aFav !== bFav) return bFav - aFav;
+      return b.score - a.score;
+    });
+  }, [bag, favorites]);
 
   const pages = Math.max(1, Math.ceil(scored.length / perPage));
 
