@@ -101,9 +101,9 @@ export default function CalendarSidebar() {
 
   function onDateClick(d: Date) {
     if (pendingMeal) {
-      addScheduledMeal(d, pendingMeal);
-      setPendingMeal(null);
-      // keep open to allow more scheduling or close
+      // set a pending date and let user choose slot
+      setPendingDate(d);
+      setSelected(new Date(d));
       return;
     }
     setSelected(new Date(d));
