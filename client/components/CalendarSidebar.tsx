@@ -173,15 +173,54 @@ export default function CalendarSidebar() {
                 <h3 className="font-medium mb-3">Details for {selected?.toLocaleDateString()}</h3>
                 <Separator />
                 <div className="mt-4 grid gap-3">
-                  {(selected ? getMealsForDate(selected) : []).map((name) => (
-                    <div key={name} className="flex items-center justify-between rounded-md border p-3">
-                      <div>
-                        <h4 className="font-semibold">{name}</h4>
-                        <p className="text-sm text-muted-foreground">Scheduled meal</p>
+                  {/* show sloted meals */}
+                  {selected && (() => {
+                    const meals = getMealsForDate(selected);
+                    const bySlot: Record<string, any[]> = { breakfast: [], lunch: [], dinner: [] };
+                    meals.forEach((m) => bySlot[m.slot]?.push(m));
+                    return (
+                      <div className="space-y-3">
+                        {(["breakfast","lunch","dinner"] as const).map((slot) => (
+                          <div key={slot} className="rounded-md border p-3">
+                            <div className="flex items-center justify-between">
+                              <h4 className="font-semibold">{slot[0].toUpperCase()+slot.slice(1)}</h4>
+                              <div className="text-sm text-muted-foreground">{bySlot[slot].length} items</div>
+                            </div>
+                            <div className="mt-2 space-y-2">
+                              {bySlot[slot].length === 0 && <div className="text-sm text-muted-foreground">No meal</div>}
+                              {bySlot[slot].map((m:any) => (
+                                <div key={m.name} className="flex items-center justify-between">
+                                  <div>
+                                    <div className="font-medium">{m.name}</div>
+                                    <div className="text-xs text-muted-foreground">{m.slot}</div>
+                                  </div>
+                                  <Badge variant="secondary">Planned</Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                      <Badge variant="secondary">Planned</Badge>
+                    );
+                  })()}
+
+                  {/* slot selection when pendingDate/pendingMeal */}
+                  {pendingMeal && pendingDate && (
+                    <div className="p-3 border rounded bg-secondary/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <div className="text-sm font-medium">Add "{pendingMeal}" to {pendingDate.toLocaleDateString()}</div>
+                          <div className="text-xs text-muted-foreground">Choose slot</div>
+                        </div>
+                        <div className="flex gap-2">
+                          <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { addScheduledMeal(pendingDate, pendingMeal, 'breakfast'); setPendingMeal(null); setPendingDate(null); }}>Breakfast</button>
+                          <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { addScheduledMeal(pendingDate, pendingMeal, 'lunch'); setPendingMeal(null); setPendingDate(null); }}>Lunch</button>
+                          <button className="px-3 py-1 rounded bg-primary text-primary-foreground" onClick={() => { addScheduledMeal(pendingDate, pendingMeal, 'dinner'); setPendingMeal(null); setPendingDate(null); }}>Dinner</button>
+                          <button className="px-3 py-1 rounded border" onClick={() => { setPendingMeal(null); setPendingDate(null); }}>Cancel</button>
+                        </div>
+                      </div>
                     </div>
-                  ))}
+                  )}
 
                   <div className="mt-6">
                     <h4 className="font-semibold mb-2">This month's ideas</h4>
