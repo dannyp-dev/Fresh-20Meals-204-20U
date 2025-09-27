@@ -8,21 +8,30 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
+import SiteHeader from "@/components/layout/SiteHeader";
+import CalendarSidebar from "@/components/CalendarSidebar";
+import ProfileSettings from "@/components/ProfileSettings";
+import { SearchProvider } from "@/context/SearchContext";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+      <SearchProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <SiteHeader />
+          <Routes>
+            <Route path="/" element={<Index />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <CalendarSidebar />
+        <ProfileSettings />
+      </SearchProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
