@@ -55,6 +55,7 @@ export default function CalendarSidebar() {
   const [viewDate, setViewDate] = useState(new Date()); // month view
   const [selected, setSelected] = useState<Date | undefined>(new Date());
   const [pendingMeal, setPendingMeal] = useState<string | null>(null);
+  const [pendingDate, setPendingDate] = useState<Date | null>(null);
 
   const { getMealsForDate, addScheduledMeal, scheduled } = useSchedule();
 
