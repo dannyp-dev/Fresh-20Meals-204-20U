@@ -12,7 +12,12 @@ export default function SiteHeader() {
           </div>
           <span className="hidden sm:block">Pantry Planner</span>
         </div>
-        <SearchBar />
+        <div className="flex items-center gap-3 w-full justify-center">
+          <SearchBar />
+          <div className="ml-3">
+            <CalorieSelector />
+          </div>
+        </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("open-grocery-bag"))}
