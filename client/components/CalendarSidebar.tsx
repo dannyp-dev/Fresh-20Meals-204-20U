@@ -160,7 +160,7 @@ export default function CalendarSidebar() {
                             {meals.length > 0 && <Badge variant="outline">{meals.length}</Badge>}
                           </div>
                           <div className="mt-2 text-xs text-muted-foreground space-y-1">
-                            {meals.slice(0,2).map((m) => <div key={m}>{m}</div>)}
+                            {meals.slice(0,2).map((m) => <div key={`${m.name}-${m.slot}`}>{m.name}</div>)}
                           </div>
                         </div>
                       );
