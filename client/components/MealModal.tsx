@@ -2,8 +2,14 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 export default function MealModal({ open, onClose, meal }: { open: boolean; onClose: () => void; meal?: { name: string; description?: string; tags?: string[]; calories?: number } }) {
-  const [imgState, setImgState] = useState<{ url?: string; loading: boolean; error?: string; debug?: any }>({ loading: false });
+  const [imgState, setImgState] = useState<{ url?: string; loading: boolean; error?: string; debug?: any; cached?: boolean }>({ loading: false });
   const [showDebug, setShowDebug] = useState(false);
+
+  // In-memory cache (module-level static via closure). Key: meal name lowercased
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const memoryCache = (globalThis as any).__MEAL_IMAGE_CACHE__ || ((globalThis as any).__MEAL_IMAGE_CACHE__ = new Map<string,string>());
+
+  function getLocalKey(name: string) { return `meal_image_${name.toLowerCase()}`; }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -18,6 +24,22 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
     if (!open || !meal) return;
     let cancelled = false;
     async function load() {
+      const key = meal.name.toLowerCase();
+      // 1. Memory cache first
+      if (memoryCache.has(key)) {
+        setImgState({ loading: false, url: memoryCache.get(key), cached: true });
+        return;
+      }
+      // 2. localStorage cache
+      try {
+        const stored = localStorage.getItem(getLocalKey(meal.name));
+        if (stored) {
+          memoryCache.set(key, stored);
+          setImgState({ loading: false, url: stored, cached: true });
+          return;
+        }
+      } catch {/* ignore quota / access errors */}
+
       setImgState({ loading: true });
       try {
         const resp = await fetch('/api/meals/image', {
@@ -28,7 +50,10 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
         const data = await resp.json();
         if (cancelled) return;
         if (data.imageDataUrl) {
-          setImgState({ loading: false, url: data.imageDataUrl });
+          // persist caches
+            memoryCache.set(key, data.imageDataUrl);
+            try { localStorage.setItem(getLocalKey(meal.name), data.imageDataUrl); } catch {/* ignore quota */}
+          setImgState({ loading: false, url: data.imageDataUrl, cached: false });
         } else {
           setImgState({ loading: false, error: data.error || 'No image generated', debug: data.debug });
         }
@@ -56,7 +81,9 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
               <div className="w-full h-48 flex items-center justify-center text-sm text-muted-foreground border rounded animate-pulse">Generating image...</div>
             )}
             {!imgState.loading && imgState.url && (
-              <img src={imgState.url} alt={meal.name} className="w-full h-48 object-cover rounded" />
+              <div className="relative">
+                <img src={imgState.url} alt={meal.name} className="w-full h-48 object-cover rounded" />
+              </div>
             )}
             {!imgState.loading && !imgState.url && (
               <div className="w-full h-48 flex flex-col items-center justify-center text-xs text-muted-foreground border rounded p-2 text-center gap-2">
