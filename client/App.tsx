@@ -12,6 +12,7 @@ import SiteHeader from "@/components/layout/SiteHeader";
 import CalendarSidebar from "@/components/CalendarSidebar";
 import ProfileSettings from "@/components/ProfileSettings";
 import { SearchProvider } from "@/context/SearchContext";
+import { ScheduleProvider } from "@/context/ScheduleContext";
 
 const queryClient = new QueryClient();
 
@@ -19,18 +20,20 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <SearchProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <SiteHeader />
-          <Routes>
-            <Route path="/" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-        <CalendarSidebar />
-        <ProfileSettings />
+        <ScheduleProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <SiteHeader />
+            <Routes>
+              <Route path="/" element={<Index />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+          <CalendarSidebar />
+          <ProfileSettings />
+        </ScheduleProvider>
       </SearchProvider>
     </TooltipProvider>
   </QueryClientProvider>
