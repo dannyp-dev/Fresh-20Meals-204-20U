@@ -34,7 +34,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
 
   const suggestions = BASE_INGREDIENTS.filter((i) => i.toLowerCase().includes(query.trim().toLowerCase()));
 
-  const value = useMemo(() => ({ query, setQuery, suggestions, bag, addToBag, removeFromBag, toggleBag }), [query, bag]);
+  const [calorieTarget, setCalorieTarget] = useState<number | null>(null);
+
+  const value = useMemo(() => ({ query, setQuery, suggestions, bag, addToBag, removeFromBag, toggleBag, calorieTarget, setCalorieTarget }), [query, bag, calorieTarget]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
