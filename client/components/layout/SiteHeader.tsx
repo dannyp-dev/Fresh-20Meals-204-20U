@@ -1,6 +1,7 @@
 import SearchBar from "@/components/SearchBar";
 import { Leaf, CalendarDays } from "lucide-react";
 import GroceryBag from "@/components/GroceryBag";
+import CalorieSelector from "@/components/CalorieSelector";
 
 export default function SiteHeader() {
   return (
