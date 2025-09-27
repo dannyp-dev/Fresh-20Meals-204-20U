@@ -61,8 +61,9 @@
     --popover: 224 18% 12%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 142 70% 45%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+  /* match light mode primary so green stays consistent between themes */
+  --primary: 142 71% 29%;
+  --primary-foreground: 0 0% 100%;
 
     --secondary: 142 26% 17%;
     --secondary-foreground: 0 0% 98%;
@@ -98,10 +99,11 @@
 
   body {
     @apply bg-background text-foreground antialiased;
+    /* use CSS variable for page background so dark mode variables control the color */
+    background-color: hsl(var(--background));
     background-image:
       radial-gradient(36rem 18rem at 110% -8%, hsl(var(--accent) / 0.08), transparent),
-      radial-gradient(36rem 18rem at -8% 110%, hsl(var(--primary) / 0.08), transparent),
-      linear-gradient(180deg, rgba(241, 253, 246, 1), rgba(249, 255, 240, 1));
+      radial-gradient(36rem 18rem at -8% 110%, hsl(var(--primary) / 0.08), transparent);
   }
 }
 

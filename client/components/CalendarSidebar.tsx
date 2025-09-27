@@ -263,7 +263,7 @@ export default function CalendarSidebar() {
                           onClick={() => onDateClick(day)}
                           data-today={isToday}
                           data-selected={isSelected}
-                          className={`p-1 rounded border ${isSelected ? "ring-2 ring-primary" : ""} ${isToday ? "bg-accent/20" : ""} cursor-pointer overflow-hidden h-full flex flex-col justify-between`}
+                          className={`p-1 rounded border cursor-pointer overflow-hidden h-full flex flex-col justify-between transition-colors duration-150 ease-in-out ${isToday ? "bg-primary text-primary-foreground" : ""} hover:bg-primary/30 hover:text-primary-foreground hover:ring-2 hover:ring-primary`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="text-sm font-medium">
