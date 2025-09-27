@@ -2,7 +2,7 @@ import "./config";
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
-import { generateMeals } from "./routes/meals";
+import { search as searchIngredients } from "./routes/ingredients";
 
 export function createServer() {
   const app = express();
@@ -19,7 +19,8 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
-  app.post("/api/meals/generate", generateMeals);
+  // Meals generation endpoint removed: app now operates in static fallback-only mode.
+  app.get("/api/ingredients/search", searchIngredients);
 
   return app;
 }

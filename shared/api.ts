@@ -8,14 +8,9 @@ export interface DemoResponse {
   message: string;
 }
 
-export interface GenerateMealsResponse {
-  meals: Array<{
-    name: string;
-    description: string;
-    tags: string[];
-  }>;
-}
 
-export interface GenerateMealsRequest {
-  ingredients: string[];
+export interface IngredientSearchResponse {
+  query: string;
+  count: number;
+  results: string[];
 }

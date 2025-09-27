@@ -4,7 +4,7 @@ import { useSearch } from "@/context/SearchContext";
 import { useState, useRef, useEffect } from "react";
 
 export default function ({ className }: { className?: string }) {
-  const { query, setQuery, suggestions, addToBag } = useSearch();
+  const { query, setQuery, suggestions, addToBag, loadingSuggestions } = useSearch();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement | null>(null);
 
@@ -50,7 +50,10 @@ export default function ({ className }: { className?: string }) {
 
       {open && suggestions.length > 0 && (
         <div className="absolute left-0 top-full mt-2 w-[28rem] max-h-80 overflow-auto rounded-xl border bg-card p-2 shadow-lg">
-          {suggestions.slice(0, 10).map((s) => (
+          {loadingSuggestions && (
+            <div className="px-3 py-2 text-xs text-muted-foreground">Searching...</div>
+          )}
+          {suggestions.slice(0, 25).map((s) => (
             <div
               key={s}
               className="flex items-center justify-between gap-3 px-3 py-2 rounded hover:bg-secondary/30 cursor-pointer"
@@ -64,6 +67,9 @@ export default function ({ className }: { className?: string }) {
               <div className="text-xs text-muted-foreground">Add</div>
             </div>
           ))}
+          {suggestions.length === 0 && !loadingSuggestions && (
+            <div className="px-3 py-2 text-xs text-muted-foreground">No results</div>
+          )}
         </div>
       )}
     </div>

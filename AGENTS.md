@@ -162,3 +162,14 @@ const data: MyRouteResponse = await response.json();
 - Production-ready with multiple deployment options
 - Comprehensive UI component library included
 - Type-safe API communication via shared interfaces
+
+## Meals Feature (Fallback-Only Mode)
+
+The previous AI-powered meal generation endpoint (`POST /api/meals/generate`) and all OpenAI dependencies have been removed. The `RecommendedMeals` component now always displays a static set of fallback recipes.
+
+If you later want to restore AI generation:
+1. Reintroduce a meals route under `server/routes/` that returns `{ meals: [...] }`.
+2. Add the fetch logic & button back into `client/components/RecommendedMeals.tsx`.
+3. Re-install the OpenAI dependency and set an `OPENAI_API_KEY` environment variable.
+
+Until then the UI will not make any network requests for meal generation.

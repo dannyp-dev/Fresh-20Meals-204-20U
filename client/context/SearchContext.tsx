@@ -5,61 +5,12 @@ import {
   useState,
   ReactNode,
   useEffect,
+  useRef,
 } from "react";
 
+// Keep a small initial list for zero-query fast suggestions (warm state)
 export const BASE_INGREDIENTS = [
-  "Tomato",
-  "Onion",
-  "Garlic",
-  "Basil",
-  "Olive Oil",
-  "Chicken Breast",
-  "Ground Beef",
-  "Salmon",
-  "Shrimp",
-  "Eggs",
-  "Milk",
-  "Butter",
-  "Greek Yogurt",
-  "Parmesan",
-  "Cheddar",
-  "Mozzarella",
-  "Rice",
-  "Quinoa",
-  "Pasta",
-  "Bread",
-  "Tortilla",
-  "Potato",
-  "Sweet Potato",
-  "Carrot",
-  "Broccoli",
-  "Spinach",
-  "Kale",
-  "Bell Pepper",
-  "Mushroom",
-  "Zucchini",
-  "Avocado",
-  "Lemon",
-  "Lime",
-  "Apple",
-  "Banana",
-  "Strawberry",
-  "Blueberry",
-  "Almonds",
-  "Peanuts",
-  "Walnuts",
-  "Chia Seeds",
-  "Oats",
-  "Honey",
-  "Maple Syrup",
-  "Soy Sauce",
-  "Coconut Milk",
-  "Curry Powder",
-  "Cumin",
-  "Paprika",
-  "Chili Flakes",
-  "Black Pepper",
-  "Sea Salt",
+  'Tomato','Onion','Garlic','Basil','Olive Oil','Chicken Breast','Ground Beef','Salmon','Shrimp','Eggs','Milk','Butter','Parmesan','Rice','Quinoa','Pasta','Bread','Potato','Carrot','Broccoli','Spinach','Lemon','Lime','Apple','Banana','Strawberry','Blueberry','Almonds','Oats','Honey','Soy Sauce','Coconut Milk','Cumin','Paprika','Black Pepper','Sea Salt'
 ];
 
 interface SearchCtx {
@@ -74,6 +25,7 @@ interface SearchCtx {
   toggleFavorite: (item: string) => void;
   calorieTarget: number | null;
   setCalorieTarget: (v: number | null) => void;
+  loadingSuggestions: boolean;
 }
 
 const Ctx = createContext<SearchCtx | null>(null);
@@ -110,9 +62,41 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       s.includes(item) ? s.filter((x) => x !== item) : [item, ...s],
     );
 
-  const suggestions = BASE_INGREDIENTS.filter((i) =>
-    i.toLowerCase().includes(query.trim().toLowerCase()),
-  );
+  const [suggestions, setSuggestions] = useState<string[]>(BASE_INGREDIENTS);
+  const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+  const abortRef = useRef<AbortController | null>(null);
+
+  // Debounced remote fetch
+  useEffect(() => {
+    const q = query.trim();
+    // If no query, show base list
+    if (!q) {
+      setSuggestions(BASE_INGREDIENTS);
+      return;
+    }
+    setLoadingSuggestions(true);
+    const controller = new AbortController();
+    abortRef.current?.abort();
+    abortRef.current = controller;
+    const t = setTimeout(async () => {
+      try {
+        const resp = await fetch(`/api/ingredients/search?q=${encodeURIComponent(q)}&limit=40`, { signal: controller.signal });
+        if (!resp.ok) throw new Error('Search failed');
+        const data = await resp.json();
+        if (Array.isArray(data.results)) {
+          setSuggestions(data.results.length ? data.results : BASE_INGREDIENTS.filter(i => i.toLowerCase().includes(q.toLowerCase())));
+        }
+      } catch (e) {
+        if ((e as any).name !== 'AbortError') {
+          // fallback gracefully
+          setSuggestions(BASE_INGREDIENTS.filter(i => i.toLowerCase().includes(q.toLowerCase())));
+        }
+      } finally {
+        setLoadingSuggestions(false);
+      }
+    }, 250);
+    return () => { clearTimeout(t); controller.abort(); };
+  }, [query]);
 
   const [calorieTarget, setCalorieTarget] = useState<number | null>(null);
 
@@ -129,8 +113,9 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       toggleFavorite,
       calorieTarget,
       setCalorieTarget,
+      loadingSuggestions,
     }),
-    [query, bag, calorieTarget, favorites],
+    [query, bag, calorieTarget, favorites, suggestions, loadingSuggestions],
   );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

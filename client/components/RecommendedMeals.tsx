@@ -7,7 +7,6 @@ import { ChevronLeft, ChevronRight, ChefHat, ShoppingBasket } from "lucide-react
 import { Button } from "@/components/ui/button";
 
 const MIN_INGREDIENTS = 3;
-import type { GenerateMealsResponse } from "@shared/api";
 
 // Fallback recipes in case AI generation fails
 const FALLBACK_RECIPES = [
@@ -22,33 +21,12 @@ export default function RecommendedMeals() {
   const [modalMeal, setModalMeal] = useState<any | null>(null);
   const [page, setPage] = useState(0);
   const perPage = 8; // 2 rows x 4 cols
-  const [recipes, setRecipes] = useState<typeof FALLBACK_RECIPES>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [recipes] = useState<typeof FALLBACK_RECIPES>(FALLBACK_RECIPES);
+  const [isLoading] = useState(false);
 
   // ...existing code...
 
-  // Function to generate meals on demand
-  const generateMeals = async () => {
-    setIsLoading(true);
-    try {
-      const response = await fetch('/api/meals/generate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients: bag })
-      });
-
-      if (!response.ok) throw new Error('Failed to generate meals');
-      
-      const data: GenerateMealsResponse = await response.json();
-      setRecipes(data.meals);
-      setPage(0); // Reset to first page after generating new meals
-    } catch (error) {
-      console.error('Error generating meals:', error);
-      setRecipes(FALLBACK_RECIPES);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  // AI generation removed; static fallback recipes always used.
 
   const scored = useMemo(() => {
     return recipes.map((r) => {
@@ -79,17 +57,7 @@ export default function RecommendedMeals() {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Recommended Meals</h2>
         <div className="flex items-center gap-4">
-          {isLoading && <span className="text-sm text-muted-foreground">Generating meal ideas...</span>}
-          {bag.length >= MIN_INGREDIENTS && (
-            <Button 
-              onClick={generateMeals} 
-              disabled={isLoading}
-              className="gap-2"
-            >
-              <ChefHat className="h-4 w-4" />
-              Generate Meals
-            </Button>
-          )}
+          {/* Generation button removed: fallback-only mode */}
         </div>
       </div>
 
@@ -108,14 +76,6 @@ export default function RecommendedMeals() {
           <p className="text-muted-foreground mb-4">
             Add at least {MIN_INGREDIENTS} ingredients to start getting meal recommendations.
             Currently have: {bag.length} ingredient{bag.length === 1 ? '' : 's'}
-          </p>
-        </Card>
-      ) : recipes.length === 0 ? (
-        <Card className="p-8 text-center">
-          <ChefHat className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Ready to generate meals</h3>
-          <p className="text-muted-foreground mb-4">
-            You have enough ingredients! Click the "Generate Meals" button to see what you can cook.
           </p>
         </Card>
       ) : (
