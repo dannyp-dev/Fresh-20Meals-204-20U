@@ -68,10 +68,11 @@ export default function CalendarSidebar() {
         setOpen(true);
       }
     }
-    window.addEventListener("open-full-calendar", handler);
+    const names = ["open-full-calendar", "open-fullcalendar", "open-calendar", "openCalendar"];
+    for (const n of names) window.addEventListener(n, handler as EventListener);
     window.addEventListener("schedule-meal", scheduleHandler as EventListener);
     return () => {
-      window.removeEventListener("open-full-calendar", handler);
+      for (const n of names) window.removeEventListener(n, handler as EventListener);
       window.removeEventListener("schedule-meal", scheduleHandler as EventListener);
     };
   }, []);
