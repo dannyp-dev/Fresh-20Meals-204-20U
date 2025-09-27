@@ -1,5 +1,6 @@
 import SearchBar from "@/components/SearchBar";
 import { Leaf, CalendarDays } from "lucide-react";
+import GroceryBag from "@/components/GroceryBag";
 
 export default function SiteHeader() {
   return (
@@ -13,11 +14,18 @@ export default function SiteHeader() {
         </div>
         <SearchBar />
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("open-grocery-bag"))}
+            className="hidden sm:inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            🛍️ Grocery
+          </button>
           <a href="#planner" className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <CalendarDays className="h-4 w-4" /> Planner
           </a>
         </div>
       </div>
+      <GroceryBag />
     </header>
   );
 }

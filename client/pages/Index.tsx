@@ -1,10 +1,10 @@
-import IngredientList from "@/components/IngredientList";
+import RecommendedMeals from "@/components/RecommendedMeals";
 
 export default function Index() {
   return (
     <main>
       <Hero />
-      <IngredientList />
+      <RecommendedMeals />
     </main>
   );
 }
@@ -18,7 +18,7 @@ function Hero() {
             Plan meals faster. Shop smarter.
           </h1>
           <p className="text-muted-foreground max-w-2xl">
-            Search ingredients in the center bar, tick what you have, and open the right-side planner to see recipe ideas by day.
+            Search ingredients in the center bar and add them to your grocery bag. Below are recommended meals chosen by our kitchen AI — meals you could make, even if you don't have every ingredient yet.
           </p>
         </div>
       </div>
