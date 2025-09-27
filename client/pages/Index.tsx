@@ -24,27 +24,33 @@ function Hero() {
               you could make, even if you don't have every ingredient yet.
             </p>
           </div>
-          <div className="w-80 hidden md:grid grid-cols-2 gap-2">
-            <img
-              src="https://source.unsplash.com/400x300/?food,salad"
-              alt="food"
-              className="w-full h-36 object-cover rounded-lg shadow"
-            />
-            <img
-              src="https://source.unsplash.com/400x300/?food,pasta"
-              alt="food"
-              className="w-full h-36 object-cover rounded-lg shadow"
-            />
-            <img
-              src="https://source.unsplash.com/400x300/?food,grill"
-              alt="food"
-              className="w-full h-36 object-cover rounded-lg shadow"
-            />
-            <img
-              src="https://source.unsplash.com/400x300/?food,dessert"
-              alt="food"
-              className="w-full h-36 object-cover rounded-lg shadow"
-            />
+          <div className="w-80 hidden md:flex items-center justify-center">
+            <div className="grid grid-cols-2 gap-2 w-full">
+              <img
+                src="/images/1.jpeg"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = '/placeholder.svg')}
+                alt="photo-1"
+                className="w-full h-36 object-cover rounded-lg shadow"
+              />
+              <img
+                src="/images/2.jpeg"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = '/placeholder.svg')}
+                alt="photo-2"
+                className="w-full h-36 object-cover rounded-lg shadow"
+              />
+              <img
+                src="/images/3.jpeg"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = '/placeholder.svg')}
+                alt="photo-3"
+                className="w-full h-36 object-cover rounded-lg shadow"
+              />
+              <img
+                src="/images/4.jpeg"
+                onError={(e) => ((e.currentTarget as HTMLImageElement).src = '/placeholder.svg')}
+                alt="photo-4"
+                className="w-full h-36 object-cover rounded-lg shadow"
+              />
+            </div>
           </div>
         </div>
       </div>
