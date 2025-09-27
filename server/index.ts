@@ -19,7 +19,7 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
-app.post("/api/meals/generate", generateMeals);
+  app.post("/api/meals/generate", generateMeals);
 
   return app;
 }
