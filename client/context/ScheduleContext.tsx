@@ -1,4 +1,11 @@
-import { createContext, useContext, useEffect, useMemo, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  ReactNode,
+} from "react";
 
 type DateKey = string; // yyyy-mm-dd
 
@@ -23,7 +30,9 @@ interface ScheduleCtx {
 const Ctx = createContext<ScheduleCtx | null>(null);
 
 export function ScheduleProvider({ children }: { children: ReactNode }) {
-  const [scheduled, setScheduled] = useState<Record<DateKey, ScheduledItem[]>>({});
+  const [scheduled, setScheduled] = useState<Record<DateKey, ScheduledItem[]>>(
+    {},
+  );
 
   useEffect(() => {
     const raw = localStorage.getItem("scheduled_meals");
@@ -38,7 +47,13 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     const key = toKey(date);
     setScheduled((s) => ({
       ...s,
-      [key]: Array.from(new Set([...(s[key] || []), { name: meal, slot }].map((i) => JSON.stringify(i)))).map((j) => JSON.parse(j) as ScheduledItem),
+      [key]: Array.from(
+        new Set(
+          [...(s[key] || []), { name: meal, slot }].map((i) =>
+            JSON.stringify(i),
+          ),
+        ),
+      ).map((j) => JSON.parse(j) as ScheduledItem),
     }));
   };
 
@@ -46,13 +61,23 @@ export function ScheduleProvider({ children }: { children: ReactNode }) {
     const key = toKey(date);
     setScheduled((s) => ({
       ...s,
-      [key]: (s[key] || []).filter((m) => !(m.name === meal && (slot ? m.slot === slot : true))),
+      [key]: (s[key] || []).filter(
+        (m) => !(m.name === meal && (slot ? m.slot === slot : true)),
+      ),
     }));
   };
 
   const getMealsForDate = (date: Date) => scheduled[toKey(date)] || [];
 
-  const value = useMemo(() => ({ scheduled, addScheduledMeal, removeScheduledMeal, getMealsForDate }), [scheduled]);
+  const value = useMemo(
+    () => ({
+      scheduled,
+      addScheduledMeal,
+      removeScheduledMeal,
+      getMealsForDate,
+    }),
+    [scheduled],
+  );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

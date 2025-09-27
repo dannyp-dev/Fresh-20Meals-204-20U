@@ -1,7 +1,65 @@
-import { createContext, useContext, useMemo, useState, ReactNode, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 
 export const BASE_INGREDIENTS = [
-  "Tomato","Onion","Garlic","Basil","Olive Oil","Chicken Breast","Ground Beef","Salmon","Shrimp","Eggs","Milk","Butter","Greek Yogurt","Parmesan","Cheddar","Mozzarella","Rice","Quinoa","Pasta","Bread","Tortilla","Potato","Sweet Potato","Carrot","Broccoli","Spinach","Kale","Bell Pepper","Mushroom","Zucchini","Avocado","Lemon","Lime","Apple","Banana","Strawberry","Blueberry","Almonds","Peanuts","Walnuts","Chia Seeds","Oats","Honey","Maple Syrup","Soy Sauce","Coconut Milk","Curry Powder","Cumin","Paprika","Chili Flakes","Black Pepper","Sea Salt"
+  "Tomato",
+  "Onion",
+  "Garlic",
+  "Basil",
+  "Olive Oil",
+  "Chicken Breast",
+  "Ground Beef",
+  "Salmon",
+  "Shrimp",
+  "Eggs",
+  "Milk",
+  "Butter",
+  "Greek Yogurt",
+  "Parmesan",
+  "Cheddar",
+  "Mozzarella",
+  "Rice",
+  "Quinoa",
+  "Pasta",
+  "Bread",
+  "Tortilla",
+  "Potato",
+  "Sweet Potato",
+  "Carrot",
+  "Broccoli",
+  "Spinach",
+  "Kale",
+  "Bell Pepper",
+  "Mushroom",
+  "Zucchini",
+  "Avocado",
+  "Lemon",
+  "Lime",
+  "Apple",
+  "Banana",
+  "Strawberry",
+  "Blueberry",
+  "Almonds",
+  "Peanuts",
+  "Walnuts",
+  "Chia Seeds",
+  "Oats",
+  "Honey",
+  "Maple Syrup",
+  "Soy Sauce",
+  "Coconut Milk",
+  "Curry Powder",
+  "Cumin",
+  "Paprika",
+  "Chili Flakes",
+  "Black Pepper",
+  "Sea Salt",
 ];
 
 interface SearchCtx {
@@ -38,17 +96,42 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const addToBag = (item: string) => setBag((s) => (s.includes(item) ? s : [...s, item]));
-  const removeFromBag = (item: string) => setBag((s) => s.filter((x) => x !== item));
-  const toggleBag = (item: string) => setBag((s) => (s.includes(item) ? s.filter((x) => x !== item) : [...s, item]));
+  const addToBag = (item: string) =>
+    setBag((s) => (s.includes(item) ? s : [...s, item]));
+  const removeFromBag = (item: string) =>
+    setBag((s) => s.filter((x) => x !== item));
+  const toggleBag = (item: string) =>
+    setBag((s) =>
+      s.includes(item) ? s.filter((x) => x !== item) : [...s, item],
+    );
 
-  const toggleFavorite = (item: string) => setFavorites((s) => (s.includes(item) ? s.filter((x) => x !== item) : [item, ...s]));
+  const toggleFavorite = (item: string) =>
+    setFavorites((s) =>
+      s.includes(item) ? s.filter((x) => x !== item) : [item, ...s],
+    );
 
-  const suggestions = BASE_INGREDIENTS.filter((i) => i.toLowerCase().includes(query.trim().toLowerCase()));
+  const suggestions = BASE_INGREDIENTS.filter((i) =>
+    i.toLowerCase().includes(query.trim().toLowerCase()),
+  );
 
   const [calorieTarget, setCalorieTarget] = useState<number | null>(null);
 
-  const value = useMemo(() => ({ query, setQuery, suggestions, bag, addToBag, removeFromBag, toggleBag, favorites, toggleFavorite, calorieTarget, setCalorieTarget }), [query, bag, calorieTarget, favorites]);
+  const value = useMemo(
+    () => ({
+      query,
+      setQuery,
+      suggestions,
+      bag,
+      addToBag,
+      removeFromBag,
+      toggleBag,
+      favorites,
+      toggleFavorite,
+      calorieTarget,
+      setCalorieTarget,
+    }),
+    [query, bag, calorieTarget, favorites],
+  );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

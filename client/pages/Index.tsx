@@ -19,14 +19,32 @@ function Hero() {
               Plan meals faster. Shop smarter.
             </h1>
             <p className="text-muted-foreground max-w-2xl">
-              Search ingredients in the center bar and add them to your grocery bag. Below are recommended meals chosen by our kitchen AI — meals you could make, even if you don't have every ingredient yet.
+              Search ingredients in the center bar and add them to your grocery
+              bag. Below are recommended meals chosen by our kitchen AI — meals
+              you could make, even if you don't have every ingredient yet.
             </p>
           </div>
           <div className="w-80 hidden md:grid grid-cols-2 gap-2">
-            <img src="https://source.unsplash.com/400x300/?food,salad" alt="food" className="w-full h-36 object-cover rounded-lg shadow" />
-            <img src="https://source.unsplash.com/400x300/?food,pasta" alt="food" className="w-full h-36 object-cover rounded-lg shadow" />
-            <img src="https://source.unsplash.com/400x300/?food,grill" alt="food" className="w-full h-36 object-cover rounded-lg shadow" />
-            <img src="https://source.unsplash.com/400x300/?food,dessert" alt="food" className="w-full h-36 object-cover rounded-lg shadow" />
+            <img
+              src="https://source.unsplash.com/400x300/?food,salad"
+              alt="food"
+              className="w-full h-36 object-cover rounded-lg shadow"
+            />
+            <img
+              src="https://source.unsplash.com/400x300/?food,pasta"
+              alt="food"
+              className="w-full h-36 object-cover rounded-lg shadow"
+            />
+            <img
+              src="https://source.unsplash.com/400x300/?food,grill"
+              alt="food"
+              className="w-full h-36 object-cover rounded-lg shadow"
+            />
+            <img
+              src="https://source.unsplash.com/400x300/?food,dessert"
+              alt="food"
+              className="w-full h-36 object-cover rounded-lg shadow"
+            />
           </div>
         </div>
       </div>

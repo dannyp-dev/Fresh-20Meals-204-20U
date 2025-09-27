@@ -10,7 +10,10 @@ const REC = [
   { name: "Pesto Pasta", tags: ["basil", "parmesan", "pasta"] },
   { name: "Chicken Caesar Wrap", tags: ["chicken", "lettuce", "tortilla"] },
   { name: "Veggie Stir Fry", tags: ["broccoli", "carrot", "soy sauce"] },
-  { name: "Chickpea Curry", tags: ["curry powder", "coconut milk", "chickpea"] },
+  {
+    name: "Chickpea Curry",
+    tags: ["curry powder", "coconut milk", "chickpea"],
+  },
   { name: "Shrimp Tacos", tags: ["shrimp", "lime", "tortilla"] },
   { name: "Margherita Pizza", tags: ["tomato", "mozzarella", "basil"] },
   { name: "Ramen Bowl", tags: ["noodles", "egg", "miso"] },
@@ -30,10 +33,12 @@ export default function RecommendedMeals() {
 
   const scored = useMemo(() => {
     return REC.map((r) => {
-      const have = r.tags.filter((t) => bag.some((b) => b.toLowerCase().includes(t)) ).length;
+      const have = r.tags.filter((t) =>
+        bag.some((b) => b.toLowerCase().includes(t)),
+      ).length;
       const score = have / r.tags.length;
       return { ...r, have, score };
-    }).sort((a,b) => {
+    }).sort((a, b) => {
       const aFav = favorites.includes(a.name) ? 1 : 0;
       const bFav = favorites.includes(b.name) ? 1 : 0;
       if (aFav !== bFav) return bFav - aFav;
@@ -57,7 +62,12 @@ export default function RecommendedMeals() {
       </div>
 
       <div className="relative">
-        <button aria-label="prev" onClick={() => setPage((p) => Math.max(0, p - 1))} disabled={page === 0} className={`absolute -left-6 top-1/2 -translate-y-1/2 z-20 rounded-full p-2 bg-card border ${page===0? 'opacity-40 pointer-events-none':''}`}>
+        <button
+          aria-label="prev"
+          onClick={() => setPage((p) => Math.max(0, p - 1))}
+          disabled={page === 0}
+          className={`absolute -left-6 top-1/2 -translate-y-1/2 z-20 rounded-full p-2 bg-card border ${page === 0 ? "opacity-40 pointer-events-none" : ""}`}
+        >
           <ChevronLeft className="h-6 w-6" />
         </button>
 
@@ -67,15 +77,39 @@ export default function RecommendedMeals() {
               <Card key={s.name} className="p-4 flex flex-col gap-3">
                 <div className="flex items-start justify-between">
                   <h3 className="font-semibold">{s.name}</h3>
-                  <Badge variant={s.score > 0.5 ? "default" : "secondary"}>{Math.round(s.score * 100)}%</Badge>
+                  <Badge variant={s.score > 0.5 ? "default" : "secondary"}>
+                    {Math.round(s.score * 100)}%
+                  </Badge>
                 </div>
-                <p className="text-sm text-muted-foreground">Needed: {s.tags.join(", ")}</p>
+                <p className="text-sm text-muted-foreground">
+                  Needed: {s.tags.join(", ")}
+                </p>
                 <div className="flex items-center justify-between mt-2">
                   <div className="flex gap-2">
-                    <button className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm" onClick={() => setModalMeal(s)}>View</button>
-                    <button className="px-3 py-1 rounded-md border text-sm" onClick={() => window.dispatchEvent(new CustomEvent('schedule-meal', { detail: { meal: s.name } }))}>Schedule</button>
+                    <button
+                      className="px-3 py-1 rounded-md bg-primary text-primary-foreground text-sm"
+                      onClick={() => setModalMeal(s)}
+                    >
+                      View
+                    </button>
+                    <button
+                      className="px-3 py-1 rounded-md border text-sm"
+                      onClick={() =>
+                        window.dispatchEvent(
+                          new CustomEvent("schedule-meal", {
+                            detail: { meal: s.name },
+                          }),
+                        )
+                      }
+                    >
+                      Schedule
+                    </button>
                   </div>
-                  <button onClick={() => toggleFavorite(s.name)} className={`p-2 rounded-full ${favorites.includes(s.name)? 'bg-yellow-300 text-yellow-800':'bg-card'}`} title="Favorite">
+                  <button
+                    onClick={() => toggleFavorite(s.name)}
+                    className={`p-2 rounded-full ${favorites.includes(s.name) ? "bg-yellow-300 text-yellow-800" : "bg-card"}`}
+                    title="Favorite"
+                  >
                     ★
                   </button>
                 </div>
@@ -84,12 +118,21 @@ export default function RecommendedMeals() {
           </div>
         </div>
 
-        <button aria-label="next" onClick={() => setPage((p) => Math.min(p + 1, pages - 1))} disabled={page >= pages - 1} className={`absolute -right-6 top-1/2 -translate-y-1/2 z-20 rounded-full p-2 bg-card border ${page>=pages-1? 'opacity-40 pointer-events-none':''}`}>
+        <button
+          aria-label="next"
+          onClick={() => setPage((p) => Math.min(p + 1, pages - 1))}
+          disabled={page >= pages - 1}
+          className={`absolute -right-6 top-1/2 -translate-y-1/2 z-20 rounded-full p-2 bg-card border ${page >= pages - 1 ? "opacity-40 pointer-events-none" : ""}`}
+        >
           <ChevronRight className="h-6 w-6" />
         </button>
       </div>
 
-      <MealModal open={!!modalMeal} onClose={() => setModalMeal(null)} meal={modalMeal} />
+      <MealModal
+        open={!!modalMeal}
+        onClose={() => setModalMeal(null)}
+        meal={modalMeal}
+      />
     </section>
   );
 }
