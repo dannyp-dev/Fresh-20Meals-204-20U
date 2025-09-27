@@ -1,7 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
-export default function MealModal({ open, onClose, meal }: { open: boolean; onClose: () => void; meal?: { name: string; tags?: string[]; calories?: number } }) {
+export default function MealModal({ open, onClose, meal }: { open: boolean; onClose: () => void; meal?: { name: string; description?: string; tags?: string[]; calories?: number } }) {
+  const [imgState, setImgState] = useState<{ url?: string; loading: boolean; error?: string; debug?: any }>({ loading: false });
+  const [showDebug, setShowDebug] = useState(false);
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -10,9 +13,35 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
 
-  if (!open || !meal) return null;
+  // Fetch AI-generated image when meal changes & modal opens
+  useEffect(() => {
+    if (!open || !meal) return;
+    let cancelled = false;
+    async function load() {
+      setImgState({ loading: true });
+      try {
+        const resp = await fetch('/api/meals/image', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mealName: meal.name, description: meal.description })
+        });
+        const data = await resp.json();
+        if (cancelled) return;
+        if (data.imageDataUrl) {
+          setImgState({ loading: false, url: data.imageDataUrl });
+        } else {
+          setImgState({ loading: false, error: data.error || 'No image generated', debug: data.debug });
+        }
+      } catch (err: any) {
+        if (cancelled) return;
+        setImgState({ loading: false, error: err?.message || 'Failed to load image' });
+      }
+    }
+    load();
+    return () => { cancelled = true; };
+  }, [open, meal?.name]);
 
-  const image = `https://source.unsplash.com/800x600/?${encodeURIComponent(meal.name)}&food`;
+  if (!open || !meal) return null;
 
   return (
     <div className="fixed inset-0 z-60 grid place-items-center bg-black/40">
@@ -23,14 +52,29 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
         </div>
         <div className="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="md:col-span-1">
-            <img src={image} alt={meal.name} className="w-full h-48 object-cover rounded" />
+            {imgState.loading && (
+              <div className="w-full h-48 flex items-center justify-center text-sm text-muted-foreground border rounded animate-pulse">Generating image...</div>
+            )}
+            {!imgState.loading && imgState.url && (
+              <img src={imgState.url} alt={meal.name} className="w-full h-48 object-cover rounded" />
+            )}
+            {!imgState.loading && !imgState.url && (
+              <div className="w-full h-48 flex flex-col items-center justify-center text-xs text-muted-foreground border rounded p-2 text-center gap-2">
+                <div>{imgState.error ? `Image unavailable: ${imgState.error}` : 'No image'}</div>
+                {imgState.debug && (
+                  <button className="underline" onClick={() => setShowDebug(v => !v)}>
+                    {showDebug ? 'Hide debug' : 'Show debug'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
           <div className="md:col-span-2">
             <div className="flex items-center justify-between mb-3">
               <div className="text-sm text-muted-foreground">Estimated calories</div>
               <div className="font-semibold">{meal.calories ?? Math.floor(400 + Math.random() * 400)} kcal</div>
             </div>
-            <p className="text-sm text-muted-foreground mb-4">This recipe uses: {(meal.tags || []).join(", ")}.</p>
+            <p className="text-sm text-muted-foreground mb-4">This recipe uses: {(meal.tags || []).join(", ")}</p>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <div className="text-sm">Time</div>
@@ -49,6 +93,11 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
               <button className="px-4 py-2 bg-primary text-primary-foreground rounded mr-2">Start Cooking</button>
               <button className="px-4 py-2 border rounded" onClick={onClose}>Close</button>
             </div>
+            {showDebug && imgState.debug && (
+              <pre className="mt-4 max-h-48 overflow-auto text-[10px] bg-muted p-2 rounded border">
+                {JSON.stringify(imgState.debug, null, 2)}
+              </pre>
+            )}
           </div>
         </div>
       </div>

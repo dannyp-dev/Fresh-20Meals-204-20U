@@ -4,6 +4,7 @@ import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { search as searchIngredients } from "./routes/ingredients";
 import { generateMeals } from "./routes/meals";
+import { generateMealImage } from "./routes/mealImage";
 
 export function createServer() {
   const app = express();
@@ -21,6 +22,7 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
   app.post("/api/meals/generate", generateMeals);
+  app.post("/api/meals/image", generateMealImage);
   app.get("/api/ingredients/search", searchIngredients);
 
   return app;
