@@ -21,9 +21,9 @@ export default function SiteHeader() {
           >
             🛍️ Grocery
           </button>
-          <a href="#planner" className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
+          <button onClick={() => window.dispatchEvent(new CustomEvent('open-full-calendar'))} className="hidden sm:flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground">
             <CalendarDays className="h-4 w-4" /> Planner
-          </a>
+          </button>
         </div>
       </div>
       <GroceryBag />
