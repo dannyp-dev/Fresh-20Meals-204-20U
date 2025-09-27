@@ -42,7 +42,7 @@ export default function RecommendedMeals() {
       <div className="mb-6 flex items-baseline justify-between">
         <h2 className="text-xl font-semibold">Recommended Meals</h2>
         <div className="flex items-center gap-3">
-          <button className="px-3 py-1 rounded border" onClick={() => history.back()}>Back</button>
+          <button className="px-3 py-1 rounded border" onClick={() => window.history.back()}>Back</button>
           <button className="px-3 py-1 rounded border" onClick={() => setPage((p) => (p + 1) % pages)}>More</button>
         </div>
       </div>
