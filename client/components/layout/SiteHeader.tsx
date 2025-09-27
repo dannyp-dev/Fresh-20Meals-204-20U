@@ -1,5 +1,4 @@
 import SearchBar from "@/components/SearchBar";
-import SearchBar from "@/components/SearchBar";
 import { Leaf, CalendarDays } from "lucide-react";
 import GroceryBag from "@/components/GroceryBag";
 
