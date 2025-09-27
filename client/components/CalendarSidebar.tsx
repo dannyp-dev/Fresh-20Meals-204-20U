@@ -186,12 +186,13 @@ export default function CalendarSidebar() {
                     <h4 className="font-semibold mb-2">This month's ideas</h4>
                     <ScrollArea className="h-56 p-2 border rounded">
                       <div className="grid grid-cols-2 gap-2">
-                        {weeks.flat().slice(0, 35).map((d) => {
-                          const forDay = ideasForDate(d);
+                        {weeks.flat().slice(0, 35).filter(Boolean).map((d) => {
+                          const day = d as Date;
+                          const forDay = ideasForDate(day);
                           return (
-                            <div key={d.toISOString()} className="p-3 border rounded">
+                            <div key={day.toISOString()} className="p-3 border rounded">
                               <div className="flex items-center justify-between mb-2">
-                                <div className="text-sm font-medium">{d.toLocaleDateString()}</div>
+                                <div className="text-sm font-medium">{day.toLocaleDateString()}</div>
                                 <Badge variant="outline">{forDay.length} ideas</Badge>
                               </div>
                               <div className="text-sm text-muted-foreground">
