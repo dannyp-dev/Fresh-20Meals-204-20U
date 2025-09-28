@@ -1,6 +1,6 @@
 ## Fresh Meals 4 U
 
-A friendly meal-planning assistant that helps you turn the ingredients you already have into delicious, realistic recipes — fast. Built with a modern React + Vite frontend and a small Express server that can call Googles Gemini models to generate meal ideas and extract visible ingredients from photos. The app is designed to feel helpful, warm, and effortless: add ingredients, let the kitchen AI suggest meals, and save or schedule your favorites.
+A friendly meal-planning assistant that helps you turn the ingredients you already have into delicious, realistic recipes — fast. Built with a modern React + Vite frontend and a small Express server that can call Googles Gemini models to generate meal ideas and extract visible ingredients from photos. The app is designed to feel helpful, warm, and effortless: add ingredients, let the kitchen AI suggest meals, and save or schedule your favorites.
 
 ### What this application does (short & sweet)
 - Let you search for and add ingredients to a persistent "Grocery Bag".
@@ -15,7 +15,7 @@ It cuts the friction out of meal planning. Instead of staring at a half-empty fr
 
 ### Quick start (development)
 1. Install a recent Node.js (Node 18+ recommended).
-2. Install pnpm if you dont have it:
+2. Install pnpm if you dont have it:
 
 ```powershell
 npm install -g pnpm
@@ -65,7 +65,7 @@ Both endpoints fall back gracefully if no API key is configured or the generativ
 
 ### Tips for users
 - Add at least 3 ingredients to the bag for the best meal ideas.
-- Use the image scan when youre short on time — it automatically adds detected items to your Grocery Bag and opens the bag for review.
+- Use the image scan when youre short on time — it automatically adds detected items to your Grocery Bag and opens the bag for review.
 - If generation returns no results, try adding or removing a few ingredients or check your `GEMINI_API_KEY`.
 
 ---
