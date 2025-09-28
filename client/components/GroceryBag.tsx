@@ -45,26 +45,31 @@ export default function GroceryBag() {
             </div>
           )}
         </SheetHeader>
-        <div className="p-6 space-y-4">
+  <div className="p-6 pb-4 space-y-4 flex flex-col flex-1 min-h-0">
           <p className="text-sm text-muted-foreground font-semibold">Items you've added</p>
-          <div className="space-y-2">
-            {bag.length === 0 && <div className="text-sm text-muted-foreground">Your bag is empty</div>}
-            {bag.map((item) => (
-              <div key={item} className="flex items-center justify-between rounded-md border p-3 hover:bg-primary/30 transition-colors duration-150">
-                <div className="flex items-center gap-3">
-                  <div className="font-medium">{item}</div>
+          <div className="relative -m-2 flex-1 min-h-0">
+            <div
+              className="space-y-2 h-full overflow-y-auto no-scrollbar smooth-scroll pr-4 pl-2 pb-2"
+              style={{ WebkitOverflowScrolling: 'touch', scrollBehavior: 'smooth' }}
+            >
+              {bag.length === 0 && <div className="text-sm text-muted-foreground">Your bag is empty</div>}
+              {bag.map((item) => (
+                <div key={item} className="flex items-center justify-between rounded-md border p-3 hover:bg-primary/30 transition-colors duration-150">
+                  <div className="flex items-center gap-3">
+                    <div className="font-medium">{item}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      title="Remove"
+                      onClick={() => removeFromBag(item)}
+                      className="h-6 w-6 rounded-full bg-transparent text-destructive grid place-items-center transition-colors duration-150 hover:bg-destructive hover:text-destructive-foreground"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    title="Remove"
-                    onClick={() => removeFromBag(item)}
-                    className="h-6 w-6 rounded-full bg-transparent text-destructive grid place-items-center transition-colors duration-150 hover:bg-destructive hover:text-destructive-foreground"
-                  >
-                    ✕
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </SheetContent>

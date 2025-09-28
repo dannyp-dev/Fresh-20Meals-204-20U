@@ -166,4 +166,39 @@
     100% { transform: scale(1) translateY(0); opacity: 0 }
   }
   .animate-pop { animation: pop 800ms ease-out both }
+
+  /* Smooth theme transition overlay (scale + fade) */
+  @keyframes theme-fade-scale {
+    0% { opacity: 0; transform: scale(0.85) translate(-5%, -5%); }
+    40% { opacity: 0.4; }
+    100% { opacity: 0; transform: scale(1.1) translate(0,0); }
+  }
+  .theme-wipe-overlay {
+    position: fixed; inset:0; z-index:9999; pointer-events:none;
+    background: radial-gradient(circle at 0% 0%, hsl(var(--brand-green)) 0%, hsl(var(--brand-orange)) 55%, transparent 85%);
+    mix-blend-mode: overlay;
+    animation: theme-fade-scale 640ms cubic-bezier(.4,.16,.2,1) forwards;
+  }
+  .dark .theme-wipe-overlay { mix-blend-mode: screen; }
+
+  /* Base element smooth transitions (color-only) */
+  .theme-transition, .theme-transition * {
+    transition: background-color 280ms ease, color 280ms ease, border-color 280ms ease, fill 280ms ease, stroke 280ms ease;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .theme-wipe-overlay { animation: none; display:none; }
+    .theme-transition, .theme-transition * { transition: none !important; }
+  }
+
+  /* Hide scrollbar while preserving scroll (cross-browser) */
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE/Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+
+  /* Enable smooth inertial-like scroll where supported */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+  }
 }

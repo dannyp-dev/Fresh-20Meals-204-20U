@@ -18,16 +18,32 @@ function useTheme() {
       setIsDark(root.classList.contains("dark"));
     }
   }, []);
-  useEffect(() => {
+
+  const toggleWithAnimation = (next: boolean) => {
+    // Ensure root has the transition class once (idempotent)
     const root = document.documentElement;
-    root.classList.toggle("dark", isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  }, [isDark]);
-  return { isDark, setIsDark };
+    root.classList.add('theme-transition');
+
+    // Spawn overlay immediately for perceptual smoothness
+    const overlay = document.createElement('div');
+    overlay.className = 'theme-wipe-overlay';
+    document.body.appendChild(overlay);
+
+    // Immediately toggle theme so internal components transition colors
+    root.classList.toggle('dark', next);
+    localStorage.setItem('theme', next ? 'dark' : 'light');
+    setIsDark(next);
+
+    // Remove overlay after animation
+    const timeout = window.setTimeout(() => overlay.remove(), 680);
+    return () => { clearTimeout(timeout); overlay.remove(); };
+  };
+
+  return { isDark, animateToggle: toggleWithAnimation };
 }
 
 export default function ProfileSettings() {
-  const { isDark, setIsDark } = useTheme();
+  const { isDark, animateToggle } = useTheme();
   return (
     <HoverCard openDelay={80}>
       <HoverCardTrigger asChild>
@@ -51,7 +67,7 @@ export default function ProfileSettings() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor="theme">Dark mode</Label>
-            <Switch id="theme" checked={isDark} onCheckedChange={(v) => setIsDark(Boolean(v))} />
+            <Switch id="theme" checked={isDark} onCheckedChange={(v) => animateToggle(Boolean(v))} />
           </div>
           <div className="flex items-center justify-between">
             <Label htmlFor="notif">Notifications</Label>

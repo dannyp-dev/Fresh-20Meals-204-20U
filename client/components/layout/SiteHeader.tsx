@@ -1,10 +1,32 @@
 import SearchBar from "@/components/SearchBar";
-import { Leaf, Camera, CalendarDays } from "lucide-react";
+import { Leaf, Camera, Loader2 } from "lucide-react";
 import GroceryBag from "@/components/GroceryBag";
 import { useEffect, useState, useRef } from "react";
 
 function CameraUpload() {
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleFile(file: File) {
+    setLoading(true);
+    try {
+      const form = new FormData();
+      form.append('image', file);
+      const resp = await fetch('/api/vision/ingredients', { method: 'POST', body: form });
+      if (!resp.ok) throw new Error('upload failed');
+      const data = await resp.json();
+      if (Array.isArray(data.ingredients) && data.ingredients.length) {
+        window.dispatchEvent(new CustomEvent('vision-ingredients-detected', { detail: { ingredients: data.ingredients, model: data.model } }));
+      } else {
+        window.dispatchEvent(new CustomEvent('vision-ingredients-empty', { detail: { model: data.model, rawText: data.rawText } }));
+      }
+    } catch (e:any) {
+      window.dispatchEvent(new CustomEvent('vision-ingredients-error', { detail: { error: e.message } }));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <div>
       <input
@@ -14,17 +36,16 @@ function CameraUpload() {
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];
-          if (f) {
-            window.dispatchEvent(new CustomEvent('image-uploaded', { detail: { fileName: f.name } }));
-          }
+          if (f) handleFile(f);
         }}
       />
       <button
         onClick={() => inputRef.current?.click()}
-        className="inline-flex items-center gap-2 h-10 px-3 rounded-md border hover:shadow-sm"
+        className="inline-flex items-center gap-2 h-10 px-3 rounded-md border hover:shadow-sm disabled:opacity-50"
         title="Upload image to scan ingredients"
+        disabled={loading}
       >
-        <Camera className="h-4 w-4" />
+        {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
       </button>
     </div>
   );

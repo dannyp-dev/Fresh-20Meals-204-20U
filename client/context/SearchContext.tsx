@@ -19,6 +19,7 @@ interface SearchCtx {
   suggestions: string[];
   bag: string[];
   addToBag: (item: string) => void;
+  addManyToBag: (items: string[]) => void;
   removeFromBag: (item: string) => void;
   decrementFromBag: (item: string) => void;
   toggleBag: (item: string) => void;
@@ -53,6 +54,21 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     setBag((s) => (s.includes(item) ? s : [...s, item]));
     // fire a small UI event so headers or other components can animate
     window.dispatchEvent(new CustomEvent('bag-item-added', { detail: { item } }));
+  };
+
+  const addManyToBag = (items: string[]) => {
+    if (!Array.isArray(items) || items.length === 0) return;
+    setBag((prev) => {
+      const merged = [...prev];
+      for (const raw of items) {
+        const item = String(raw).trim();
+        if (item && !merged.includes(item)) {
+          merged.push(item);
+          window.dispatchEvent(new CustomEvent('bag-item-added', { detail: { item } }));
+        }
+      }
+      return merged;
+    });
   };
 
   const removeFromBag = (item: string) => {
@@ -119,6 +135,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       suggestions,
       bag,
       addToBag,
+  addManyToBag,
       removeFromBag,
       decrementFromBag,
       toggleBag,

@@ -89,3 +89,11 @@ export interface MealRecipeResponse {
   cached?: boolean;
   rawText?: string;
 }
+
+// Vision ingredient extraction
+export interface VisionIngredientsResponse {
+  model: string;
+  ingredients: string[];
+  rawText?: string; // raw model text (debug)
+  error?: string;
+}
