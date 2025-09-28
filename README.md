@@ -1,3 +1,6 @@
+## >> IMPORTANT <<
+You must use your own Gemini API Key and then run the command in powershell: $env:GEMINI_API_KEY = "PUT KEY HERE"
+
 ## Fresh Meals 4 U
 
 A friendly meal-planning assistant that helps you turn the ingredients you already have into delicious, realistic recipes — fast. Built with a modern React + Vite frontend and a small Express server that can call Googles Gemini models to generate meal ideas and extract visible ingredients from photos. The app is designed to feel helpful, warm, and effortless: add ingredients, let the kitchen AI suggest meals, and save or schedule your favorites.
