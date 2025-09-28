@@ -21,7 +21,8 @@ export default function RecommendedMeals() {
   const [modalMeal, setModalMeal] = useState<any | null>(null);
   const [page, setPage] = useState(0);
   const perPage = 8; // 2 rows x 4 cols
-  const [recipes, setRecipes] = useState<typeof FALLBACK_RECIPES>(FALLBACK_RECIPES);
+  // Start with no recipes; user must reach ingredient threshold and click Generate.
+  const [recipes, setRecipes] = useState<typeof FALLBACK_RECIPES>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [lastModel, setLastModel] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
@@ -40,7 +41,7 @@ export default function RecommendedMeals() {
       if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
       const data = await resp.json();
       if (!data.meals || !Array.isArray(data.meals) || data.meals.length === 0) {
-        setRecipes(FALLBACK_RECIPES);
+        setRecipes([]);
         setLastModel(data.model || 'fallback');
         return;
       }
@@ -86,16 +87,17 @@ export default function RecommendedMeals() {
       <div className="mb-4 flex items-center justify-between">
         <h2 className="text-xl font-semibold">Recommended Meals</h2>
         <div className="flex items-center gap-4">
-          {lastModel && (
+          {lastModel && recipes.length > 0 && (
             <span className="text-xs text-muted-foreground">Model: {lastModel}</span>
           )}
           {error && (
             <span className="text-xs text-destructive">{error}</span>
           )}
-          {bag.length >= MIN_INGREDIENTS && (
+          {/* Show header button ONLY after meals have been generated at least once */}
+          {bag.length >= MIN_INGREDIENTS && recipes.length > 0 && (
             <Button onClick={generateMeals} disabled={isLoading} className="gap-2">
               <ChefHat className="h-4 w-4" />
-              {isLoading ? 'Generating...' : 'Generate Meals'}
+              {isLoading ? 'Generating...' : 'Regenerate'}
             </Button>
           )}
         </div>
@@ -118,17 +120,29 @@ export default function RecommendedMeals() {
             Currently have: {bag.length} ingredient{bag.length === 1 ? '' : 's'}
           </p>
         </Card>
+      ) : recipes.length === 0 ? (
+        <Card className="p-8 text-center">
+          <ChefHat className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
+          <h3 className="text-lg font-semibold mb-2">Ready to generate meals</h3>
+          <p className="text-muted-foreground mb-4">Click the Generate Meals button above to create personalized meal ideas from your selected ingredients.</p>
+          {/* Center button shown only before first generation */}
+          <Button onClick={generateMeals} disabled={isLoading} className="gap-2">
+            <ChefHat className="h-4 w-4" /> {isLoading ? 'Generating...' : 'Generate Meals'}
+          </Button>
+        </Card>
       ) : (
         <>
       <div className="relative">
-        <button
-          aria-label="prev"
-          onClick={() => setPage((p) => Math.max(0, p - 1))}
-          disabled={page === 0}
-          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full z-20 rounded-full p-2 bg-card border shadow-sm hover:shadow md:hover:scale-105 transition ${page === 0 ? "opacity-40 pointer-events-none" : ""}`}
-        >
-          <ChevronLeft className="h-6 w-6" />
-        </button>
+        {pages > 1 && (
+          <button
+            aria-label="prev"
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            disabled={page === 0}
+            className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full z-20 rounded-full p-2 bg-card border shadow-sm hover:shadow md:hover:scale-105 transition ${page === 0 ? "opacity-40 pointer-events-none" : ""}`}
+          >
+            <ChevronLeft className="h-6 w-6" />
+          </button>
+        )}
 
         <div>
           {/* carousel viewport (box styling removed per request) */}
@@ -200,14 +214,16 @@ export default function RecommendedMeals() {
           </div>
         </div>
 
-        <button
-          aria-label="next"
-          onClick={() => setPage((p) => Math.min(p + 1, pages - 1))}
-          disabled={page >= pages - 1}
-          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-full z-20 rounded-full p-2 bg-card border shadow-sm hover:shadow md:hover:scale-105 transition ${page >= pages - 1 ? "opacity-40 pointer-events-none" : ""}`}
-        >
-          <ChevronRight className="h-6 w-6" />
-        </button>
+        {pages > 1 && (
+          <button
+            aria-label="next"
+            onClick={() => setPage((p) => Math.min(p + 1, pages - 1))}
+            disabled={page >= pages - 1}
+            className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-full z-20 rounded-full p-2 bg-card border shadow-sm hover:shadow md:hover:scale-105 transition ${page >= pages - 1 ? "opacity-40 pointer-events-none" : ""}`}
+          >
+            <ChevronRight className="h-6 w-6" />
+          </button>
+        )}
       </div>
       
           <MealModal
