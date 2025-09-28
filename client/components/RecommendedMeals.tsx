@@ -5,6 +5,7 @@ import { useSearch } from "@/context/SearchContext";
 import MealModal from "@/components/MealModal";
 import { ChevronLeft, ChevronRight, ChefHat, ShoppingBasket } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import MenuFilter from "@/components/MenuFilter";
 
 const MIN_INGREDIENTS = 3;
 
@@ -32,10 +33,13 @@ export default function RecommendedMeals() {
     setIsLoading(true);
     setError(null);
     try {
+      // read filters from localStorage (set by MenuFilter)
+      const raw = localStorage.getItem('menu_filters');
+      const filters = raw ? JSON.parse(raw) : null;
       const resp = await fetch('/api/meals/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients: bag, maxMeals: 8 })
+        body: JSON.stringify({ ingredients: bag, maxMeals: 8, filters })
       });
       if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
       const data = await resp.json();
@@ -93,10 +97,13 @@ export default function RecommendedMeals() {
             <span className="text-xs text-destructive">{error}</span>
           )}
           {bag.length >= MIN_INGREDIENTS && (
-            <Button onClick={generateMeals} disabled={isLoading} className="gap-2">
-              <ChefHat className="h-4 w-4" />
-              {isLoading ? 'Generating...' : 'Generate Meals'}
-            </Button>
+            <div className="flex items-center gap-2">
+              <MenuFilter />
+              <Button onClick={generateMeals} disabled={isLoading} className="gap-2">
+                <ChefHat className="h-4 w-4" />
+                {isLoading ? 'Generating...' : 'Generate Meals'}
+              </Button>
+            </div>
           )}
         </div>
       </div>
