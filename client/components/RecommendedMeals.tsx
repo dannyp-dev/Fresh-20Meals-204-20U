@@ -35,7 +35,7 @@ export default function RecommendedMeals() {
       const resp = await fetch('/api/meals/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ingredients: bag, maxMeals: 8 })
+  body: JSON.stringify({ ingredients: bag, maxMeals: 16 })
       });
       if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
       const data = await resp.json();

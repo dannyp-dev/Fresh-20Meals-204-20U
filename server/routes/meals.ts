@@ -30,7 +30,7 @@ function extractJson(text: string): any | null {
 export const generateMeals: RequestHandler = async (req, res) => {
 	const body: GenerateMealsRequest = req.body || { ingredients: [] };
 	const ingredients = Array.isArray(body.ingredients) ? body.ingredients : [];
-	const maxMeals = body.maxMeals && body.maxMeals > 0 && body.maxMeals <= 12 ? body.maxMeals : 6;
+	const maxMeals = body.maxMeals && body.maxMeals > 0 && body.maxMeals <= 16 ? body.maxMeals : 6;
 
 	if (ingredients.length === 0) {
 		return res.status(400).json({ error: 'ingredients array required' });
