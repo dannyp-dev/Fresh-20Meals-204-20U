@@ -20,6 +20,7 @@ interface SearchCtx {
   bag: string[];
   addToBag: (item: string) => void;
   removeFromBag: (item: string) => void;
+  decrementFromBag: (item: string) => void;
   toggleBag: (item: string) => void;
   favorites: string[];
   toggleFavorite: (item: string) => void;
@@ -48,10 +49,21 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     localStorage.setItem("favorites", JSON.stringify(favorites));
   }, [favorites]);
 
-  const addToBag = (item: string) =>
+  const addToBag = (item: string) => {
     setBag((s) => (s.includes(item) ? s : [...s, item]));
-  const removeFromBag = (item: string) =>
+    // fire a small UI event so headers or other components can animate
+    window.dispatchEvent(new CustomEvent('bag-item-added', { detail: { item } }));
+  };
+
+  const removeFromBag = (item: string) => {
     setBag((s) => s.filter((x) => x !== item));
+  };
+
+  const decrementFromBag = (item: string) => {
+    // If item not in bag, do nothing. Otherwise remove it (we don't track qtys any more)
+    setBag((s) => s.filter((x) => x !== item));
+  };
+
   const toggleBag = (item: string) =>
     setBag((s) =>
       s.includes(item) ? s.filter((x) => x !== item) : [...s, item],
@@ -108,6 +120,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
       bag,
       addToBag,
       removeFromBag,
+      decrementFromBag,
       toggleBag,
       favorites,
       toggleFavorite,

@@ -111,4 +111,12 @@
   .brand-gradient {
     background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   }
+
+  /* small pop animation for stars */
+  @keyframes pop {
+    0% { transform: scale(0.2) translateY(0); opacity: 0 }
+    50% { transform: scale(1.1) translateY(-6px); opacity: 1 }
+    100% { transform: scale(1) translateY(0); opacity: 0 }
+  }
+  .animate-pop { animation: pop 800ms ease-out both }
 }
