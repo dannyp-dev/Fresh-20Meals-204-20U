@@ -4,12 +4,14 @@ import { X } from "lucide-react";
 export default function MealModal({ open, onClose, meal }: { open: boolean; onClose: () => void; meal?: { name: string; description?: string; tags?: string[]; calories?: number; timeMinutes?: number; servings?: number } }) {
   const [imgState, setImgState] = useState<{ url?: string; loading: boolean; error?: string; debug?: any; cached?: boolean }>({ loading: false });
   const [showDebug, setShowDebug] = useState(false);
+  const [recipeState, setRecipeState] = useState<{ loading: boolean; ingredients?: { item: string; quantity?: string }[]; steps?: string[]; error?: string; fetched?: boolean }>({ loading: false });
 
   // In-memory cache (module-level static via closure). Key: meal name lowercased
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const memoryCache = (globalThis as any).__MEAL_IMAGE_CACHE__ || ((globalThis as any).__MEAL_IMAGE_CACHE__ = new Map<string,string>());
 
   function getLocalKey(name: string) { return `meal_image_${name.toLowerCase()}`; }
+  function getRecipeKey(name: string) { return `meal_recipe_${name.toLowerCase()}`; }
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -117,9 +119,77 @@ export default function MealModal({ open, onClose, meal }: { open: boolean; onCl
               </div>
             </div>
             <div className="mt-4">
-              <button className="px-4 py-2 bg-primary text-primary-foreground rounded mr-2">Start Cooking</button>
+              <button
+                className="px-4 py-2 bg-primary text-primary-foreground rounded mr-2 disabled:opacity-60"
+                disabled={recipeState.loading}
+                onClick={async () => {
+                  if (recipeState.fetched) return; // already loaded
+                  setRecipeState(s => ({ ...s, loading: true, error: undefined }));
+                  // check localStorage cache first
+                  try {
+                    const cached = localStorage.getItem(getRecipeKey(meal.name));
+                    if (cached) {
+                      const parsed = JSON.parse(cached);
+                      setRecipeState({ loading: false, ingredients: parsed.ingredients, steps: parsed.steps, fetched: true });
+                      return;
+                    }
+                  } catch {/* ignore */}
+                  try {
+                    const resp = await fetch('/api/meals/recipe', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        mealName: meal.name,
+                        tags: meal.tags || [],
+                        description: meal.description,
+                        calories: meal.calories,
+                        timeMinutes: meal.timeMinutes,
+                        servings: meal.servings,
+                      })
+                    });
+                    const data = await resp.json();
+                    if (data.ingredients && data.steps) {
+                      setRecipeState({ loading: false, ingredients: data.ingredients, steps: data.steps, fetched: true });
+                      try { localStorage.setItem(getRecipeKey(meal.name), JSON.stringify({ ingredients: data.ingredients, steps: data.steps })); } catch {/* ignore */}
+                    } else {
+                      setRecipeState({ loading: false, error: data.error || 'Failed to build recipe' });
+                    }
+                  } catch (e:any) {
+                    setRecipeState({ loading: false, error: e.message || 'Failed to build recipe' });
+                  }
+                }}
+              >
+                {recipeState.loading ? 'Generating…' : recipeState.fetched ? 'Recipe Ready' : 'Start Cooking'}
+              </button>
               <button className="px-4 py-2 border rounded" onClick={onClose}>Close</button>
             </div>
+            {recipeState.error && (
+              <div className="mt-3 text-xs text-destructive">{recipeState.error}</div>
+            )}
+            {recipeState.fetched && (
+              <div className="mt-6 space-y-6">
+                {recipeState.ingredients && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-sm">Ingredients</h4>
+                    <ul className="list-disc pl-5 space-y-1 text-sm">
+                      {recipeState.ingredients.map((ing, i) => (
+                        <li key={i}>{ing.quantity ? `${ing.quantity} ` : ''}{ing.item}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+                {recipeState.steps && (
+                  <div>
+                    <h4 className="font-semibold mb-2 text-sm">Steps</h4>
+                    <ol className="list-decimal pl-5 space-y-2 text-sm">
+                      {recipeState.steps.map((st, i) => (
+                        <li key={i}>{st}</li>
+                      ))}
+                    </ol>
+                  </div>
+                )}
+              </div>
+            )}
             {showDebug && imgState.debug && (
               <pre className="mt-4 max-h-48 overflow-auto text-[10px] bg-muted p-2 rounded border">
                 {JSON.stringify(imgState.debug, null, 2)}

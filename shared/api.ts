@@ -61,3 +61,31 @@ export interface MealImageResponse {
   // Raw safety / debug info (trimmed) if needed.
   debug?: any;
 }
+
+// REQUEST: generate a recipe with structured output for an existing meal suggestion.
+export interface MealRecipeRequest {
+  mealName: string;
+  // ingredient tags for the meal (subset of user's chosen ingredients)
+  tags: string[];
+  description?: string;
+  calories?: number;
+  timeMinutes?: number;
+  servings?: number;
+  // Force regeneration ignoring cache
+  refresh?: boolean;
+}
+
+// RESPONSE: structured recipe data
+export interface MealRecipeResponse {
+  mealName: string;
+  model: string;
+  ingredients: Array<{ item: string; quantity?: string }>;
+  steps: string[]; // ordered instructions
+  servings?: number;
+  calories?: number; // total calories (may echo or refine)
+  timeMinutes?: number; // total time (may echo or refine)
+  notes?: string[]; // optional chef tips / substitutions
+  error?: string;
+  cached?: boolean;
+  rawText?: string;
+}
