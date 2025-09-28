@@ -125,13 +125,13 @@ export default function RecommendedMeals() {
           aria-label="prev"
           onClick={() => setPage((p) => Math.max(0, p - 1))}
           disabled={page === 0}
-          className={`absolute -left-6 top-1/2 -translate-y-1/2 z-20 rounded-full p-2 bg-card border ${page === 0 ? "opacity-40 pointer-events-none" : ""}`}
+          className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full z-20 rounded-full p-2 bg-card border shadow-sm hover:shadow md:hover:scale-105 transition ${page === 0 ? "opacity-40 pointer-events-none" : ""}`}
         >
           <ChevronLeft className="h-6 w-6" />
         </button>
 
-        <div className="border rounded-lg p-4 overflow-hidden">
-          {/* carousel viewport */}
+        <div>
+          {/* carousel viewport (box styling removed per request) */}
           <div className="relative w-full overflow-hidden">
             {/* sliding track */}
             <div
@@ -204,7 +204,7 @@ export default function RecommendedMeals() {
           aria-label="next"
           onClick={() => setPage((p) => Math.min(p + 1, pages - 1))}
           disabled={page >= pages - 1}
-          className={`absolute -right-6 top-1/2 -translate-y-1/2 z-20 rounded-full p-2 bg-card border ${page >= pages - 1 ? "opacity-40 pointer-events-none" : ""}`}
+          className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-full z-20 rounded-full p-2 bg-card border shadow-sm hover:shadow md:hover:scale-105 transition ${page >= pages - 1 ? "opacity-40 pointer-events-none" : ""}`}
         >
           <ChevronRight className="h-6 w-6" />
         </button>
