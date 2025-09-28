@@ -11,9 +11,9 @@ export default function Index() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden">
+  <section className="relative overflow-hidden surface-hero rounded-none">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-        <div className="rounded-2xl bg-gradient-to-br from-primary/10 to-accent/10 border p-8 md:p-12 flex items-center gap-6">
+  <div className="rounded-2xl surface-hero border p-8 md:p-12 flex items-center gap-6 gradient-border">
           <div className="flex-1">
             <h1 className="text-2xl md:text-4xl font-extrabold tracking-tight mb-3">
               Plan meals faster. Shop smarter.

@@ -49,6 +49,16 @@
     --sidebar-accent-foreground: 142 72% 20%;
     --sidebar-border: 24 13% 90%;
     --sidebar-ring: 142 71% 29%;
+
+    /* Brand gradient system (light) */
+    --brand-green: 142 71% 29%; /* primary base */
+    --brand-orange: 24 94% 50%; /* accent base */
+    --brand-green-soft: 142 71% 29% / 0.08;
+    --brand-orange-soft: 24 94% 50% / 0.08;
+    --surface-muted: 36 33% 97%;
+    --surface-alt: 36 33% 95%;
+    --gradient-hero: linear-gradient(to bottom right, hsl(var(--brand-green-soft)), hsl(var(--brand-orange-soft)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--brand-green)) 0%, hsl(var(--brand-orange)) 100%);
   }
 
   .dark {
@@ -89,6 +99,16 @@
     --sidebar-accent-foreground: 0 0% 98%;
     --sidebar-border: 217.2 32.6% 17.5%;
     --sidebar-ring: 142 70% 45%;
+
+    /* Brand gradient system (dark) */
+    --brand-green: 142 70% 45%;
+    --brand-orange: 23 92% 61%;
+    --brand-green-soft: 142 70% 45% / 0.12;
+    --brand-orange-soft: 23 92% 61% / 0.12;
+    --surface-muted: 224 18% 14%;
+    --surface-alt: 224 18% 18%;
+    --gradient-hero: linear-gradient(to bottom right, hsl(var(--brand-green-soft)), hsl(var(--brand-orange-soft)));
+    --gradient-accent: linear-gradient(135deg, hsl(var(--brand-green)) 0%, hsl(var(--brand-orange)) 100%);
   }
 }
 
@@ -102,14 +122,41 @@
     /* use CSS variable for page background so dark mode variables control the color */
     background-color: hsl(var(--background));
     background-image:
-      radial-gradient(36rem 18rem at 110% -8%, hsl(var(--accent) / 0.08), transparent),
-      radial-gradient(36rem 18rem at -8% 110%, hsl(var(--primary) / 0.08), transparent);
+      radial-gradient(40rem 22rem at 110% -8%, hsl(var(--brand-orange-soft)), transparent),
+      radial-gradient(42rem 24rem at -8% 110%, hsl(var(--brand-green-soft)), transparent);
   }
 }
 
 @layer components {
   .brand-gradient {
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+    background: var(--gradient-accent);
+  }
+
+  /* New utility surfaces to reuse hero-like palette site-wide */
+  .surface-muted { background-color: hsl(var(--surface-muted)); }
+  .surface-alt { background-color: hsl(var(--surface-alt)); }
+  .surface-hero { background: var(--gradient-hero); }
+  .outline-brand { box-shadow: 0 0 0 1px hsl(var(--brand-green)); }
+  .ring-brand { box-shadow: 0 0 0 3px hsl(var(--brand-green) / 0.35); }
+  .text-brand-green { color: hsl(var(--brand-green)); }
+  .text-brand-orange { color: hsl(var(--brand-orange)); }
+  .bg-brand-green { background-color: hsl(var(--brand-green)); }
+  .bg-brand-orange { background-color: hsl(var(--brand-orange)); }
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: var(--gradient-accent);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
   }
 
   /* small pop animation for stars */

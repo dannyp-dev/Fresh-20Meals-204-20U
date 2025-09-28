@@ -5,8 +5,7 @@ import { useSearch } from "@/context/SearchContext";
 import MealModal from "@/components/MealModal";
 import { ChevronLeft, ChevronRight, ChefHat, ShoppingBasket } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import MenuFilter from "@/components/MenuFilter";
-import MenuFilter from "@/components/MenuFilter";
+import MenuFilter from "@/components/MenuFilter"; // (deduplicated import)
 
 const MIN_INGREDIENTS = 3;
 
@@ -41,7 +40,8 @@ export default function RecommendedMeals() {
       const resp = await fetch('/api/meals/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ ingredients: bag, maxMeals: 16, filters, filters })
+        // removed duplicate 'filters' property
+        body: JSON.stringify({ ingredients: bag, maxMeals: 16, filters })
       });
       if (!resp.ok) throw new Error(`Request failed: ${resp.status}`);
       const data = await resp.json();
@@ -100,15 +100,13 @@ export default function RecommendedMeals() {
           )}
           {/* Show header button ONLY after meals have been generated at least once */}
           {bag.length >= MIN_INGREDIENTS && recipes.length > 0 && (
-            <div className="flex items-center gap-2">
-              <MenuFilter />
-              <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Single settings (filters) trigger */}
               <MenuFilter />
               <Button onClick={generateMeals} disabled={isLoading} className="gap-2">
-                  <ChefHat className="h-4 w-4" />
-                  {isLoading ? 'Generating...' : 'Regenerate'}
-                </Button>
-            </div>
+                <ChefHat className="h-4 w-4" />
+                {isLoading ? 'Generating...' : 'Regenerate'}
+              </Button>
             </div>
           )}
         </div>

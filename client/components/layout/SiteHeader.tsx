@@ -48,7 +48,7 @@ export default function SiteHeader() {
           <div className="h-8 w-8 rounded-md brand-gradient grid place-items-center text-primary-foreground">
             <Leaf className="h-5 w-5" />
           </div>
-          <span className="hidden sm:block">Pantry Planner</span>
+          <span className="hidden sm:block">FM4U</span>
         </div>
         <div className="flex items-center gap-3 w-full justify-center">
           <SearchBar />
