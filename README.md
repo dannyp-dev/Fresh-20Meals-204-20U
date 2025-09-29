@@ -78,3 +78,4 @@ Both endpoints fall back gracefully if no API key is configured or the generativ
 - cd "C:\Users\dewfe\Fresh Meals 4 U\Fresh-20Meals-204-20U"
 - npm install -g pnpm
 - pnpm install
+# Projects
